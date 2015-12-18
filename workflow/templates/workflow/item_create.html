@@ -1,0 +1,170 @@
+{% extends "workflow/index.html" %}
+
+{% block content %}
+<form method="post" class="uk-form uk-form-horizontal">{% csrf_token %}
+<div class="uk-grid uk-grid-divider">
+  <div class="uk-width-1-2">
+	<!-- itemName -->
+	<div class="uk-form-row">
+      <label for="id_name" class="uk-form-label">{{ form.itemName.label }}
+           	{% for error in form.itemName.errors %}
+           		<span class="uk-badge uk-badge-danger">{{ error }}</span>
+           	{% endfor %}
+      </label>
+      <div class="uk-form-controls">
+   			{{ form.itemName }}
+      </div>
+	</div>
+
+    <!-- routId -->
+	<div class="uk-form-row">
+		<label for="id_project" class="uk-form-label">{{ form.routID.label }}
+               	{% for error in form.routID.errors %}
+               		<span class="uk-badge uk-badge-danger">{{ error }}</span>
+               	{% endfor %}
+           </label>
+			<div class="uk-form-controls">
+				{{ form.routID }}
+			</div>
+	</div>
+
+	<!-- applyUserId -->
+	<div class="uk-form-row">
+		<label for="id_type" class="uk-form-label">{{ form.applyUserId.label }}
+               	{% for error in form.applyUserId.errors %}
+               		<span class="uk-badge uk-badge-danger">{{ error }}</span>
+               	{% endfor %}
+           </label>
+		<div class="uk-form-controls">
+			{{ form.applyUserId }}
+            <div style="color:#337ab7">{{ form.applyUserId.help_text }}</div>
+		</div>
+	</div>
+
+	<!-- itemType -->
+	<div class="uk-form-row">
+			<label for="id_module" class="uk-form-label">{{ form.itemType.label }}
+               	{% for error in form.itemType.errors %}
+               		<span class="uk-badge uk-badge-danger">{{ error }}</span>
+               	{% endfor %}
+               </label>
+			<div class="uk-form-controls">
+				{{ form.itemType }}
+              	</div>
+	</div>
+
+	<!-- reason -->
+	<div class="uk-form-row">
+		<label for="id_character" class="uk-form-label">{{ form.reason.label }}
+               	{% for error in form.reason.errors %}
+               		<span class="uk-badge uk-badge-danger">{{ error }}</span>
+               	{% endfor %}
+           </label>
+		<div class="uk-form-controls">
+			{{ form.reason }}
+		</div>
+
+	</div>
+
+	<!-- content -->
+	<div class="uk-form-row">
+		<label for="id_statu" class="uk-form-label">{{ form.content.label }}
+               	{% for error in form.content.errors %}
+               		<span class="uk-badge uk-badge-danger">{{ error }}</span>
+               	{% endfor %}
+           </label>
+		<div class="uk-form-controls">
+			{{ form.content }}
+		</div>
+	</div>
+
+	<!-- start_time -->
+	<div class="uk-form-row">
+			<label for="id_start_time" class="uk-form-label">{{ form.start_time.label }}
+               	{% for error in form.start_time.errors %}
+               		<span class="uk-badge uk-badge-danger">{{ error }}</span>
+               	{% endfor %}
+               </label>
+			<div class="uk-form-controls">
+				{{ form.start_time }}
+                <div style="color:#337ab7">{{ form.start_time.help_text }}</div>
+              	</div>
+	</div>
+
+	<!-- end_time -->
+	<div class="uk-form-row">
+			<label for="id_module" class="uk-form-label">{{ form.end_time.label }}
+               	{% for error in form.end_time.errors %}
+               		<span class="uk-badge uk-badge-danger">{{ error }}</span>
+               	{% endfor %}
+               </label>
+			<div class="uk-form-controls">
+				{{ form.end_time }}
+                <div style="color:#337ab7">{{ form.end_time.help_text }}</div>
+              	</div>
+	</div>
+  </div>
+  <div class="uk-width-1-2">
+
+	<!-- incidence -->
+	<div class="uk-form-row">
+		<label for="id_check_time" class="uk-form-label">{{ form.incidence.label }}
+               	{% for error in form.incidence.errors %}
+               		<span class="uk-badge uk-badge-danger">{{ error }}</span>
+               	{% endfor %}
+           </label>
+			<div class="uk-form-controls">
+			{{ form.incidence }}
+			<div style="color:red">{{ form.check_time.errors }}</div>
+		</div>
+	</div>
+    <!-- operation -->
+	<div class="uk-form-row">
+		<label for="id_developer" class="uk-form-label">{{ form.operation.label }}
+               	{% for error in form.operation.errors %}
+               		<span class="uk-badge uk-badge-danger">{{ error }}</span>
+               	{% endfor %}
+           </label>
+		<div class="uk-form-controls">
+			{{ form.operation }}
+			<div style="color:#337ab7">{{ form.operation.help_text }}</div>
+		</div>
+	</div>
+
+     <!-- rollback -->
+	<div class="uk-form-row">
+		<label for="id_tester" class="uk-form-label">{{ form.rollback.label }}
+               	{% for error in form.rollback.errors %}
+               		<span class="uk-badge uk-badge-danger">{{ error }}</span>
+               	{% endfor %}
+           </label>
+		<div class="uk-form-controls">
+			{{ form.rollback }}
+			<div style="color:#337ab7">{{ form.rollback.help_text }}</div>
+		</div>
+	</div>
+
+	<!-- comment -->
+	<div class="uk-form-row">
+		<label for="id_uat_date" class="uk-form-label">{{ form.comment.label }}
+			{% for error in form.comment.errors %}
+              		<span class="uk-badge uk-badge-danger">{{ error }}</span>
+            {% endfor %}
+        </label>
+		<div class="uk-form-controls">
+			{{ form.comment }}
+			<div style="color:#337ab7">{{ form.uat_date.help_text }}</div>
+        </div>
+    </div>
+  </div><!-- end 1-2 -->
+</div><!-- end uk-grid -->
+	<!-- button -->
+<hr>
+			<button type="submit" class="uk-button uk-button-primary">提交表单</button>
+			<button type="reset" class="uk-button uk-button-danger">重置表单</button>
+</form>
+{% endblock %}
+
+
+{% block js %}
+{% endblock %}

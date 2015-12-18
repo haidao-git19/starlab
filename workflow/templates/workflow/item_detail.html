@@ -1,0 +1,33 @@
+{% extends "workflow/index.html" %}
+
+{% block content %}
+    <h4 class="tm-article-subtitle">详情:{{ object.itemName }} <div class="uk-text-warning uk-margin-top">{{ object.get_state_display }}</div></h4>
+    <dl class="uk-description-list-line">
+        <dt>使用流程:</dt><dd>{{ object.routID }}</dd>
+        <dt>申请人:</dt><dd>{{ object.applyUserId }}</dd>
+        <dt>类型:</dt><dd>{{ object.get_itemType_display }}</dd>
+        <dt>开始时间:</dt><dd>{{ object.start_time|date:"y-m-d H:i" }}</dd>
+        <dt>计划结束时间:</dt><dd>{{ object.end_time|date:"y-m-d H:i" }}</dd>
+        <dt>原因:</dt><dd>{{ object.reason }}</dd>
+        <dt>内容:</dt><dd>{{ object.content }}</dd>
+        <dt>影响范围:</dt><dd>{{ object.incidence|linebreaksbr }}</dd>
+        <dt>具体操作:</dt><dd>{{ object.operation|linebreaksbr }}</dd>
+        <dt>回滚:</dt><dd>{{ object.rollback|linebreaksbr }}</dd>
+        <dt>注释:</dt><dd>{{ object.comment|linebreaksbr}}</dd>
+    </dl>
+    <a class="uk-button uk-button-success" href="{% url "workflow:actoruser-list" %}">任务审批页面>></a>
+{% endblock %}
+
+    itemName = models.CharField(max_length=255)
+    routID = models.ForeignKey("workflow.Rout", verbose_name="使用流程")
+    applyUserId = models.ForeignKey("auth.User", verbose_name="申请人")
+    state = models.IntegerField(choices=STATE_CHOICES, default=0, verbose_name="版本类型")
+    itemType = models.IntegerField(choices=TYPE_CHOICES, default=0)
+    reason = models.CharField(null=True, blank=True, max_length=50, verbose_name="原因")
+    content = models.CharField(null=True, blank=True, max_length=50, verbose_name="内容")
+    start_time = models.DateTimeField(auto_now_add=True, verbose_name="开始时间")
+    end_time = models.DateTimeField(null=True, blank=True, verbose_name="结束时间")
+    incidence = models.CharField(null=True, blank=True, max_length=255, verbose_name="影响范围")
+    operation = models.CharField(null=True, blank=True, max_length=255, verbose_name="具体操作")
+    rollback = models.CharField(null=True, blank=True, max_length=255, verbose_name="回滚")
+    comment = models.CharField(null=True, blank=True, max_length=255, verbose_name="注释")

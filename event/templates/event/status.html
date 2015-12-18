@@ -1,0 +1,213 @@
+{% extends "home/base.html" %}
+{% load staticfiles %}
+
+{% block title %}千寻 | 事件监控{% endblock %}
+
+{% block middle %}
+
+        <nav class="uk-navbar">
+            <div class="uk-container uk-container-center">
+                <a class="uk-navbar-brand uk-hidden-small uk-text-write" href="{% url "home:index" %}" style="padding-left: 0px;">返回平台首页</a>
+
+                    <ul class="uk-navbar-nav">
+                        <li class="{% if "event" in current_page %}uk-active{% endif %}"><a href="{% url "event:sub-project" %}">事件监控</a></li>
+                    </ul>
+                    <div class="uk-navbar-flip">
+                        <ul class="uk-navbar-nav">
+                            <li><a href="#notice" data-uk-smooth-scroll>当前未关闭的问题 <span class="uk-badge uk-badge-primary">{{ open_list|length }}</span></a></li>
+                        </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="uk-block uk-block-primary uk-contrast">
+            <div class="uk-container uk-container-center">
+
+                <h1>事件平台状态展示</h1>
+
+                <div class="uk-grid uk-grid-match">
+                    <div class="uk-width-medium-1-3">
+                        <div class="uk-panel">
+                            <h3>事件类型</h3>
+                            <span class="uk-badge uk-badge-success">警报类</span>
+                            <span class="uk-badge uk-badge-success">故障类</span>
+                            <span class="uk-badge uk-badge-success">维护类</span>
+                            <span class="uk-badge uk-badge-success">测试类</span>
+                        </div>
+                    </div>
+                    <div class="uk-width-medium-1-3">
+                        <div class="uk-panel">
+                            <h3>事件等级</h3>
+                            <span class="uk-badge uk-badge-success">无影响</span>
+                            <span class="uk-badge uk-badge-success">P1</span>
+                            <span class="uk-badge uk-badge-success">P2</span>
+                            <span class="uk-badge uk-badge-success">P3</span>
+                            <span class="uk-badge uk-badge-success">P4</span>
+                        </div>
+                    </div>
+                    <div class="uk-width-medium-1-3">
+                        <div class="uk-panel">
+                            <h3>子项目</h3>
+                            <span class="uk-badge uk-badge-success">基站</span>
+                            <span class="uk-badge uk-badge-success">系统</span>
+                            <span class="uk-badge uk-badge-success">网络</span>
+                            <span class="uk-badge uk-badge-success">应用（开放平台）</span>
+                            <span class="uk-badge uk-badge-success">应用（数据算法）</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="uk-container uk-container-center">
+            <div class="uk-grid">
+                <div class="uk-width-medium-1-6 uk-margin-top">
+                    <div data-uk-sticky="{top:10, animation: 'uk-animation-slide-top'}">
+                        <ul class="uk-tab uk-tab-left">
+                            <li class="{% if current_page == "event-subproject" %}uk-active{% endif %}"><a href="{% url "event:sub-project" %}">子项目</a></li>
+                            <li class="{% if current_page == "event-type" %}uk-active{% endif %}"><a href="{% url "event:type" %}">事件类型</a></li>
+                            <li class="{% if current_page == "event-level" %}uk-active{% endif %}"><a href="{% url "event:level" %}">事件等级</a></li>
+{#                            <li class="uk-disabled"><a href="">无权限</a></li>#}
+                        </ul>
+{#                        <div class="uk-panel uk-panel-box  uk-panel-hover uk-panel-box-primary uk-margin-top">#}
+{#                            <h3 class="uk-panel-title"> 建议或者意见</h3>#}
+{#                            请点击<a>此链接</a>提交,或者直接联系<a href="mailto:yuan.gao@wz-inc.com"><br>yuan.gao</a>,谢谢!#}
+{#                        </div>#}
+                    </div>
+                </div>
+                <div class="uk-width-medium-5-6 uk-margin-top">
+                {% if not open %}
+                    <p style="" class="uk-alert">暂无数据,请联系管理员</p>
+                {% else %}
+                    <p class="uk-alert uk-alert-success">注意: 问题数量为0的类型不显示打开/关闭状态。 </p>
+                    <h4 class="tm-article-subtitle">柱状图</h4>
+                    <div id="container" style="height:400px"></div>
+                    <h4 class="tm-article-subtitle">表格</h4>
+                    <table id="datatable" class="uk-table uk-table-hover uk-table-striped uk-table-condensed">
+                        <thead>
+                            <tr>
+                                <th>类型</th>
+                                <th>当前打开的问题</th>
+                                <th class="uk-text-muted">已关闭</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for project, open, close in data %}
+                            <tr>
+                                <th>{{ project }}</th>
+                                <td>{{ open }}</td>
+                                <td class="uk-text-muted">{{ close }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <hr>
+                    <h4 class="tm-article-subtitle">zabbix报警</h4>
+                    <table class="uk-table uk-table-hover uk-table-striped uk-table-condensed">
+{#                        <caption>描述</caption>#}
+                        <thead>
+                            <tr>
+                                <th class="uk-width-1-10">编号</th>
+                                <th>名称</th>
+                                <th class="uk-text-muted uk-text-center">描述</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th class="uk-width-1-10">编号</th>
+                                <th>名称</th>
+                                <th class="uk-text-muted">描述</th>
+                            </tr>
+                        </tfoot>
+                        <tbody>
+                        {% for item in open_list %}
+                            <tr>
+                                <td>{{ item.id }}</td>
+                                <td>{{ item.subject }}</td>
+                                <td class="uk-text-muted">{{ item.description }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+                </div>
+            </div>
+
+        </div>
+{#        <div class="my-footer">#}
+{#            <div class="uk-container uk-container-center uk-text-center">#}
+{#                <ul class="uk-subnav uk-subnav-line uk-flex-center">#}
+{#                    <li><a href="http://git.wz-inc.com/devops/starlab">Gitlab</a></li>#}
+{#                    <li><a>Issues</a></li>#}
+{#                    <li><a href="http://git.wz-inc.com/devops/starlab/blob/master/README.md">Changelog</a></li>#}
+{#                </ul>#}
+{##}
+{#                <div class="uk-panel">#}
+{#                    <p>Made by <a href="mailto:yuan.gao@wz-inc.com">yuAn</a> with love and caffeine.</p>#}
+{#                    <a href="http://git.wz-inc.com/devops/starlab">StarLAB</a>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+
+{% endblock %}
+
+
+{% block css %}
+    <link href="{% static "uikit-2.24.1/css/components/sticky.min.css" %}" rel="stylesheet">
+    <style>
+        .my-footer {
+            padding: 50px 0;
+        }
+        .uk-navbar-nav>li.uk-active>a {
+          background-color: #24272D;
+          color: #FFF;
+        }
+        .uk-navbar {
+          background: #2B333D;
+          color: #444;
+        }
+        .uk-navbar-nav>li>a {
+          color: #C5D0DE;
+        }
+        .uk-text-write {
+            color: #FFF;
+        }
+        .uk-navbar-brand:hover {
+            color: #00A8E6;
+        }
+    </style>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript" src="{% static "uikit-2.24.1/js/components/sticky.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "Highcharts-4.1.9/js/highcharts.js" %}"></script>
+    <script type="text/javascript" src="{% static "Highcharts-4.1.9/js/modules/exporting.js" %}"></script>
+    <script type="text/javascript" src="{% static "Highcharts-4.1.9/js/modules/data.js" %}"></script>
+    <script>
+    $(document).ready(function(){
+
+        $('#container').highcharts({
+            data: {
+                table: document.getElementById('datatable')
+            },
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: '{{ graphTitle }}'
+            },
+            yAxis: {
+                allowDecimals: false,
+                title: {
+                    text: '单位:个'
+                }
+            },
+            tooltip: {
+                formatter: function() {
+                    return '<b>'+ this.series.name +'</b><br/>'+
+                        this.y
+                }
+            }
+        });
+    });
+    </script>
+{% endblock %}

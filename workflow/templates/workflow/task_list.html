@@ -1,0 +1,91 @@
+{% extends "workflow/index.html" %}
+
+{% block content %}
+                <h4 class="tm-article-subtitle">审批中任务</h4>
+                {% if open_queryset %}
+{#                    审批人状态:#}
+{#                    <div class="uk-badge">未定</div>#}
+{#                    <div class="uk-badge uk-badge-danger">拒绝</div>#}
+{#                    <div class="uk-badge uk-badge-success">同意</div>#}
+                    <table class="uk-table uk-table-hover uk-table-striped">
+                        <thead>
+                            <tr>
+                                <th class="uk-width-1-5">任务编号</th>
+                                <th class="uk-width-1-5">所属工单</th>
+                                <th class="uk-width-2-5">任务状态</th>
+                                <th class="uk-width-1-5">审批人
+                                    <div class="uk-badge">未定</div>
+                                    <div class="uk-badge uk-badge-danger">拒绝</div>
+                                    <div class="uk-badge uk-badge-success">同意</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item,users in open_queryset %}
+                            <tr>
+                                <td class="uk-width-1-5">{{ item.id }}</td>
+                                <td class="uk-width-1-5"><a href="{{ item.itemId.get_absolute_url }}">{{ item.itemId.itemName }}</a></td>
+                                <td class="uk-width-2-5">{{ item.actorId.actorName }}</td>
+                                <td class="uk-width-1-5">
+                                    <div>
+                                        {% for item in users %}
+                                            {% if item.state == True %}
+                                                <div class="uk-badge uk-badge-success">{{ item.operateUserId }}</div>
+                                            {% elif item.state == False %}
+                                                <div class="uk-badge uk-badge-danger">{{ item.operateUserId }}</div>
+                                            {% else %}
+                                                <div class="uk-badge">{{ item.operateUserId }}</div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p style="" class="uk-alert uk-alert-success">暂无已检出任务</p>
+                {% endif %}
+
+                <h4 class="tm-article-subtitle">结束的任务</h4>
+                {% if close_queryset %}
+
+                    <table class="uk-table uk-table-hover uk-table-striped">
+                        <thead>
+                            <tr>
+                                <th class="uk-width-1-5">任务编号</th>
+                                <th class="uk-width-1-5">所属工单</th>
+                                <th class="uk-width-1-5">状态验证</th>
+                                <th class="uk-width-1-5">备注</th>
+                                <th class="uk-width-1-5">状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item,users in close_queryset %}
+                            <tr>
+                                <td class="uk-width-1-5">{{ item.id }}</td>
+                                <td class="uk-width-1-5"><a href="{{ item.itemId.get_absolute_url }}">{{ item.itemId.itemName }}</a></td>
+                                <td class="uk-width-1-5">{{ item.actorId.actorName }}</td>
+                                <td class="uk-width-1-5 uk-text-danger">{{ item.version }}</td>
+                                <td class="uk-width-1-5"><i class="uk-icon-check-circle uk-text-success"></i></td>
+{#                                <td class="uk-text-center">#}
+{#                                    <div>#}
+{#                                        {% for item in users %}#}
+{#                                            {% if item.state == True %}#}
+{#                                                <div class="uk-badge uk-badge-success">{{ item.operateUserId }}</div>#}
+{#                                            {% elif item.state == False %}#}
+{#                                                <div class="uk-badge uk-badge-danger">{{ item.operateUserId }}</div>#}
+{#                                            {% else %}#}
+{#                                                <div class="uk-badge">{{ item.operateUserId }}</div>#}
+{#                                            {% endif %}#}
+{#                                        {% endfor %}#}
+{#                                    </div>#}
+{#                                </td>#}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p style="" class="uk-alert uk-alert-success">空</p>
+                {% endif %}
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends "workflow/index.html" %}
+
+{% block content %}
+                <div class="uk-text-muted uk-panel uk-panel-box">
+                    说明: 每次变更创建之后并不会开启审批流程,点击
+                    <button class="uk-button uk-button-success uk-button-mini">开始创建审批任务</button>
+                    或者
+                    <button class="uk-button uk-button-primary uk-button-mini">重新创建审批任务</button>
+                    之后,会生成一个带有编号的审批任务并开启审批,同一个变更可以重复生成审批任务.
+                </div>
+                <h4 class="tm-article-subtitle">未创建审批任务的变更</h4>
+                {% if object_list %}
+
+                    <table class="uk-table uk-table-hover uk-table-striped">
+                        <thead>
+                            <tr class="">
+                                <th class="uk-width-1-6">名称</th>
+                                <th class="uk-width-1-6">使用的流程模板</th>
+                                <th class="uk-width-1-6">开始时间</th>
+                                <th class="uk-width-1-6">预计结束时间</th>
+                                <th class="uk-width-1-6">当前状态</th>
+                                <th class="uk-width-1-6 uk-text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in object_list %}
+                            <tr>
+                                <td class="uk-width-1-6"><a href="{{ item.get_absolute_url }}">{{ item.itemName }}</a></td>
+                                <td class="uk-width-1-6">{{ item.routID }}</td>
+                                <td class="uk-width-1-6">{{ item.start_time|date:"y-m-d H:i" }}</td>
+                                <td class="uk-width-1-6">{{ item.end_time|date:"y-m-d H:i" }}</td>
+                                <td class="uk-width-1-6 uk-text-success">{{ item.get_state_display }}</td>
+                                <td class="uk-width-1-6 uk-text-center"><a class="uk-button uk-button-primary uk-button-mini" href="{% url "workflow:item-update" pk=item.id %}">编辑</a> <a class="uk-button uk-button-success uk-button-mini btn-start" pk="{{ item.id }}">开始创建审批任务</a></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p style="" class="uk-alert uk-alert-success">暂无</p>
+                {% endif %}
+                <h4 class="tm-article-subtitle">审批中的变更</h4>
+                {% if working_queryset %}
+
+                    <table class="uk-table uk-table-hover uk-table-striped">
+                        <thead>
+                            <tr>
+                                <th class="uk-width-1-5">名称</th>
+                                <th class="uk-width-1-5">开始时间</th>
+                                <th class="uk-width-1-5">预计结束时间</th>
+                                <th class="uk-width-1-5">当前状态</th>
+                                <th class="uk-width-1-5 uk-text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in working_queryset %}
+                            <tr>
+                                <td class="uk-width-1-5"><a href="{{ item.get_absolute_url }}">{{ item.itemName }}</a></td>
+                                <td class="uk-width-1-5">{{ item.start_time|date:"y-m-d H:i" }}</td>
+                                <td class="uk-width-1-5">{{ item.end_time|date:"y-m-d H:i" }}</td>
+                                <td class="uk-width-1-5 uk-text-danger">{{ item.get_state_display }}</td>
+                                <td class="uk-width-1-5 uk-text-center"><div class="uk-badge uk-badge-warning">审批中不能编辑</div></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p style="" class="uk-alert uk-alert-success">暂无</p>
+                {% endif %}
+                <h4 class="tm-article-subtitle">已结束的变更</h4>
+                {% if close_queryset %}
+
+                    <table class="uk-table uk-table-hover uk-table-striped">
+                        <thead>
+                            <tr>
+                                <th class="uk-width-1-5">名称</th>
+                                <th class="uk-width-1-5">开始时间</th>
+                                <th class="uk-width-1-5">结束时间</th>
+                                <th class="uk-width-1-5">当前状态</th>
+                                <th class="uk-width-1-5 uk-text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in close_queryset %}
+                            <tr>
+                                <td class="uk-width-1-5"><a href="{{ item.get_absolute_url }}">{{ item.itemName }}</a></td>
+                                <td class="uk-width-1-5">{{ item.start_time|date:"y-m-d H:i" }}</td>
+                                <td class="uk-width-1-5">{{ item.end_time|date:"y-m-d H:i" }}</td>
+                                <td class="uk-width-1-5 uk-text-muted">{{ item.get_state_display }}</td>
+                                <td class="uk-width-1-5 uk-text-center"><a class="uk-button uk-button-primary uk-button-mini btn-start" pk="{{ item.id }}">重新创建审批任务</a></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p style="" class="uk-alert uk-alert-success">暂无</p>
+                {% endif %}
+{% endblock %}
+
+{% block js %}
+    <script>
+    $(".btn-start").click(function() {
+
+        var id = $(this).attr('pk');
+        _self = id;
+        swal({
+            title: "是否开始审批流程?",
+            text: "会创建审批任务并告知默认审批人",
+            type: "info",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            showLoaderOnConfirm: true
+        }, function () {
+            $.ajax({
+                url:'{% url "workflow:create-task" %}',
+                type: 'post',
+                data:{
+                     id : _self
+                },
+                dataType: 'json',
+                beforeSend: function(){
+                },
+                error: function(XHR){
+                    swal("出错了!", XHR.responseJSON.return, "error")
+                },
+                success: function(data){
+{#                    swal("审批开始,已通知相关审批人", data.return, "success");#}
+                    swal({
+                        title: "审批开始,已通知相关审批人!",
+                        text: data.return,
+                        type: "success",
+{#                        showCancelButton: true,#}
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "确定",
+                        closeOnConfirm: false
+                    },
+                    function(){
+                        location.reload();
+                    });
+                }
+            });/* end ajax */
+        });
+    })
+    </script>
+{% endblock %}

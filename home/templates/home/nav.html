@@ -1,0 +1,48 @@
+{% load staticfiles %}
+    <nav class="uk-navbar uk-position-top">
+        <div class="uk-container uk-container-center">
+                <a class="uk-navbar-brand uk-hidden-small uk-text-write uk-text-bold" href="{% url "home:index" %}" style="padding-left: 0;">
+{#                    <img class="uk-margin uk-margin-remove" src="{% static "img/logo.png" %}" style="height: 30px;width: 38px;" >#}
+                    <img class="uk-margin uk-margin-remove" src="{% static "img/star.png" %}" style="height: 25px;width: 25px;" >
+                    千寻观星台
+                </a>
+
+                <ul class="uk-navbar-nav">
+{#                    <li class=""><a onclick="error()"><i class="uk-icon-cubes"></i> 资产管理</a></li>#}
+                    <li class=""><a href="{% url "event:sub-project" %}"><i class="uk-icon-area-chart"></i> 监控系统</a></li>
+                    <li class=""><a onclick="error()"><i class="uk-icon-sitemap"></i> 发布系统</a></li>
+                    <li class=""><a><i class="uk-icon-pie-chart"></i> 报表系统</a></li>
+                    <li class=""><a href="{% url "workflow:item-list" %}"><i class="uk-icon-street-view"></i> 工作流</a></li>
+                    {% if current_page == "home-index" %}
+                        <li class="uk-parent uk-active" data-uk-dropdown="">
+                            <a href="" class="uk-text-bold"><i class="uk-icon-inbox"></i> 其他平台</a>
+
+                            <div class="uk-dropdown uk-dropdown-navbar">
+                                <ul class="uk-nav uk-nav-navbar">
+                                    <li class="uk-nav-header">平台入口</li>
+                                    {% for website in object_list %}
+                                        <li><a href="{{ website.url }}">{{ website.name }}</a></li>
+                                    {% endfor %}
+                                    <li class="uk-nav-header">管理</li>
+                                    <li><a href="{% url "admin:app_list" 'home' %}">后台管理</a></li>
+                                </ul>
+                            </div>
+
+                        </li>
+                        {% else %}
+                    {% endif %}
+                </ul>
+                <div class="uk-navbar-flip">
+                    <ul class="uk-navbar-nav">
+                        <li><a href="http://pwd.wz-inc.com"><i class="uk-icon-edit"></i> 修改密码</a></li>
+{#                        <li><a href="#notice" data-uk-smooth-scroll> 公告<span class="uk-badge uk-badge-primary">0</span></a></li>#}
+                        <li><a href="#notice" data-uk-smooth-scroll>{{ request.user.last_name }}{{ request.user.first_name }} </a></li>
+                    </ul>
+                </div>
+        </div>
+    </nav>
+    <script>
+        function error(){
+          sweetAlert("Oops...", "开发中!", "error");
+        }
+    </script>

@@ -1,0 +1,126 @@
+{% extends "home/base.html" %}
+
+{% block title %}
+    千寻 | 变更管理
+{% endblock %}
+
+{% block middle %}
+        <nav class="uk-navbar">
+            <div class="uk-container uk-container-center">
+                <a class="uk-navbar-brand uk-hidden-small uk-text-write" href="{% url "home:index" %}" style="padding-left: 0px;">返回平台首页</a>
+
+                    <ul class="uk-navbar-nav">
+                        <li class="{% if "item" in current_page %}uk-active{% endif %}"><a href="{% url "workflow:item-list" %}">变更管理</a></li>
+                    </ul>
+                    <div class="uk-navbar-flip">
+                        <ul class="uk-navbar-nav">
+                            <li><a href="" data-uk-smooth-scroll>{{ request.user.last_name }}{{ request.user.first_name }} </a></li>
+                            <li><a href="" data-uk-smooth-scroll>未解决 <span class="uk-badge uk-badge-primary">{{ open_list|length }}</span></a></li>
+                        </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="uk-block uk-block-secondary uk-contrast">
+            <div class="uk-container uk-container-center">
+
+            <h1>变更管理</h1>
+
+            <div class="uk-grid uk-grid-match">
+                <div class="uk-width-medium-2-2">
+                    <div class="uk-panel">
+                        <h3>基本流程</h3>
+                        <span class="uk-badge uk-badge-primary">创建变更申请</span> >
+                        <span class="uk-badge uk-badge-primary">生成审批任务</span> >
+                        <span class="uk-badge uk-badge-primary">一级审批(加签)</span> >
+                        <span class="uk-badge uk-badge-primary">全部通过</span> >
+                        <span class="uk-badge uk-badge-primary">领导审批(加签)</span> >
+                        <span class="uk-badge uk-badge-primary">全部通过</span> >
+                        <span class="uk-badge uk-badge-primary">变更</span> >
+                        <span class="uk-badge uk-badge-primary">任务结束,变更关闭</span>
+                    </div>
+                </div>
+{#                <div class="uk-width-medium-1-3">#}
+{#                    <div class="uk-panel">#}
+{#                        <h3>事件等级</h3>#}
+{#                        <span class="uk-badge uk-badge-success">无影响</span>#}
+{#                        <span class="uk-badge uk-badge-success">P1</span>#}
+{#                        <span class="uk-badge uk-badge-success">P2</span>#}
+{#                        <span class="uk-badge uk-badge-success">P3</span>#}
+{#                        <span class="uk-badge uk-badge-success">P4</span>#}
+{#                    </div>#}
+{#                </div>#}
+{#                <div class="uk-width-medium-1-3">#}
+{#                    <div class="uk-panel">#}
+{#                        <h3>子项目</h3>#}
+{#                        <span class="uk-badge uk-badge-success">基站</span>#}
+{#                        <span class="uk-badge uk-badge-success">系统</span>#}
+{#                        <span class="uk-badge uk-badge-success">网络</span>#}
+{#                        <span class="uk-badge uk-badge-success">应用（开放平台）</span>#}
+{#                        <span class="uk-badge uk-badge-success">应用（数据算法）</span>#}
+{#                    </div>#}
+{#                </div>#}
+            </div>
+            </div>
+        </div>
+        <nav class="uk-navbar">
+            <div class="uk-container uk-container-center">
+
+                <ul class="uk-navbar-nav">
+                <div class="uk-navbar-content uk-hidden-small" style="padding-left: 0px;">
+                    <div class="uk-button-group">
+                        <a class="uk-button uk-button-danger" href="{% url "workflow:item-create" %}">创建一个变更</a>
+                    </div>
+                </div>
+                    <li class="{% if "item" in current_page %}uk-active{% endif %}"><a href="{% url "workflow:item-list" %}">变更列表</a></li>
+                    <li class="{% if "task" in current_page %}uk-active{% endif %}"><a href="{% url "workflow:task-list" %}">任务列表</a></li>
+{#                    <li class="{% if "judge" in current_page %}uk-active{% endif %}"><a href="{% url "workflow:actoruser-list" %}">待审批 <span class="uk-badge uk-badge-primary">{{ to_judge|default:0 }}</span></a></li>#}
+                    <li class="{% if "judge" in current_page %}uk-active{% endif %}"><a href="{% url "workflow:actoruser-list" %}">审批列表</a></li>
+{#                    <li class="{% if "workflow-passapply" in current_page %}uk-active{% endif %}"><a href="{% url "workflow:change" %}"></a></li>#}
+{#                    <li class="uk-parent uk-active" data-uk-dropdown="">#}
+{#                        <a href=""><i class="uk-icon-home"></i> Level1</a>#}
+{##}
+{#                        <div class="uk-dropdown uk-dropdown-navbar">#}
+{#                            <ul class="uk-nav uk-nav-navbar">#}
+{#                                <li><a href="#">Item</a></li>#}
+{#                                <li><a href="#">Another item</a></li>#}
+{#                                <li class="uk-nav-header">Header</li>#}
+{#                                <li><a href="#">Item</a></li>#}
+{#                                <li><a href="#">Another item</a></li>#}
+{#                                <li class="uk-nav-divider"></li>#}
+{#                                <li><a href="#">Separated item</a></li>#}
+{#                            </ul>#}
+{#                        </div>#}
+{##}
+{#                    </li>#}
+{##}
+                </ul>
+
+{#                <div class="uk-navbar-content">Some <a href="#">link</a>.</div>#}
+
+
+                <div class="uk-navbar-content uk-navbar-flip  uk-hidden-small">
+                    <form class="uk-form uk-margin-remove uk-display-inline-block">
+                        <input type="text" placeholder="搜索">
+                        <button class="uk-button uk-button-primary">提交</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+
+        <div class="uk-container uk-container-center">
+            <div class="uk-margin-top">
+            {% block content %}
+            {% endblock %}
+            </div>
+        </div>
+{% endblock %}
+
+{% block css %}
+    <style>
+
+    </style>
+{% endblock %}
+
+{% block js %}
+    <script></script>
+{% endblock %}

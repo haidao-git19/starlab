@@ -1,0 +1,191 @@
+{% extends "workflow/index.html" %}
+
+{% block content %}
+    <h4 class="tm-article-subtitle">待审批变更</h4>
+    {% if judge_list %}
+        <table class="uk-table uk-table-hover uk-table-striped uk-table-condensed">
+            <thead>
+                <tr>
+                    <th class="uk-width-1-5">名称</th>
+                    <th class="uk-width-1-5">开始时间</th>
+                    <th class="uk-width-1-5">计划结束时间</th>
+                    <th class="uk-width-1-5">审请人</th>
+                    <th class="uk-width-1-5">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for task,actoruser in judge_list %}
+                {% for item in actoruser %}
+                    {% if item.operateUserId == request.user and item.state != True%}
+                    <tr>
+                        <td class="uk-width-1-5"><a href="{{ task.itemId.get_absolute_url }}">{{ task.itemId.itemName }}</a></td>
+                        <td class="uk-width-1-5">{{ task.itemId.start_time|date:"y-m-d H:i" }}</td>
+                        <td class="uk-width-1-5">{{ task.itemId.end_time|date:"y-m-d H:i" }}</td>
+                        <td class="uk-width-1-5">
+                                {{ task.itemId.applyUserId }}
+                        </td>
+                        <td class="uk-text-center">
+                            <a class="uk-button uk-button-success uk-button-mini btn-agree" taskid="{{ task.id }}" actorid="{{ task.actorId.id }}" actoruserid="{{ item.id }}" >同意</a>
+                            <a class="uk-button uk-button-danger uk-button-mini btn-refused" taskid="{{ task.id }}" actorid="{{ task.actorId.id }}" actoruserid="{{ item.id }}">拒绝</a>
+                            <a class="uk-button uk-button-primary uk-button-mini btn-add" id="add_sign" actorid="{{ task.actorId.id }}">加签</a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="" class="uk-alert uk-alert-success">暂无待审批申请</p>
+    {% endif %}
+
+
+    <div class="uk-modal" id="modal_add_sign">
+        <div class="uk-modal-dialog">
+            <button type="button" class="uk-modal-close uk-close"></button>
+            <div class="uk-modal-header">
+                <h2>加签</h2>
+            </div>
+            <p>啊实打实大师的</p>
+            <div class="uk-modal-footer">
+                <button type="submit" class="uk-button">submit</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block js %}
+    <script>
+    $(".btn-agree").click(function() {
+
+        var taskid = $(this).attr('taskid');
+        var actorid = $(this).attr('actorid');
+        var actoruserid = $(this).attr('actoruserid');
+
+        swal({
+            title: "是否同意审批?",
+            text: "同意后将不能加签",
+            type: "info",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            showLoaderOnConfirm: true
+        }, function () {
+            $.ajax({
+                url:'{% url "workflow:agree" %}',
+                type: 'post',
+                data:{
+                    taskid : taskid,
+                    actorid : actorid,
+                    actoruserid : actoruserid,
+                },
+                dataType: 'json',
+                beforeSend: function(){
+                },
+                error: function(XHR){
+                    swal("出错了!", XHR.responseJSON.return, "error")
+                    $(this).isDisabled();
+                },
+                success: function(data){
+                    swal({
+                        title: "已同意!",
+                        text: data.return,
+                        type: "success",
+{#                        showCancelButton: true,#}
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "确定",
+                        closeOnConfirm: false
+                    },
+                    function(){
+                        location.reload();
+                    });
+                }
+            });/* end ajax */
+        });
+    });
+
+    $(".btn-refused").click(function() {
+
+        var taskid = $(this).attr('taskid');
+        var actorid = $(this).attr('actorid');
+        var actoruserid = $(this).attr('actoruserid');
+
+        swal({
+            title: "确定拒绝?",
+            text: "拒绝后审批任务将关闭并通知审批人",
+            type: "info",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            showLoaderOnConfirm: true
+        }, function () {
+            $.ajax({
+                url:'{% url "workflow:disagree" %}',
+                type: 'post',
+                data:{
+                    taskid : taskid,
+                    actorid : actorid,
+                    actoruserid : actoruserid,
+                },
+                dataType: 'json',
+                beforeSend: function(){
+                },
+                error: function(XHR){
+                    swal("出错了!", XHR.responseJSON.return, "error")
+                    $(this).isDisabled();
+                },
+                success: function(data){
+                    swal({
+                        title: "已拒绝!",
+                        text: data.return,
+                        type: "success",
+{#                        showCancelButton: true,#}
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "确定",
+                        closeOnConfirm: false
+                    },
+                    function(){
+                        location.reload();
+                    });
+                }
+            });/* end ajax */
+        });
+    });
+
+
+    $("#add_sign").click(function() {
+        var actorid = $(this).attr('actorid');
+        UIkit.modal.prompt('请输入被加签人的邮箱:', '', function(email){
+            $.ajax({
+                url:'{% url "workflow:add_sign" %}',
+                type: 'post',
+                data:{
+                    actorid : actorid,
+                    email: email
+                },
+                dataType: 'json',
+                beforeSend: function(){
+                },
+                error: function(XHR){
+                    swal("出错了!", XHR.responseJSON.return, "error");
+                    $(this).isDisabled();
+                },
+                success: function(data){
+                    swal("加签成功!", data.return, "success");
+{#                    swal({#}
+{#                        title: "已同意!",#}
+{#                        text: data.return,#}
+{#                        type: "success",#}
+{#                        showCancelButton: true,#}
+{#                        confirmButtonColor: "#DD6B55",#}
+{#                        confirmButtonText: "确定",#}
+{#                        closeOnConfirm: false#}
+{#                    },#}
+{#                    function(){#}
+{#                        location.reload();#}
+{#                    });#}
+                }
+            });/* end ajax */
+        });
+    });
+    </script>
+{% endblock %}

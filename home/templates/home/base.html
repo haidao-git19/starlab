@@ -1,0 +1,66 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link type="image/x-icon" rel="icon" href="{% static "img/star.ico" %}">
+    <title>{% block title %}base{% endblock %}</title>
+    <link href="{% static "uikit-2.24.1/css/uikit.min.css" %}" rel="stylesheet">
+    <link href="{% static "uikit-2.24.1/css/doc.css" %}" rel="stylesheet">
+    <link href="{% static "uikit-2.24.1/css/components/datepicker.css" %}" rel="stylesheet">
+        <link rel="stylesheet" href={% static "sweetalert/dist/sweetalert.css"%}>
+
+    {% block css %}
+    {% endblock %}
+</head>
+<body>
+
+{% block body %}
+    {% block middle %}
+
+    {% endblock %}
+
+        <div class="tm-footer" style="margin-top: 400px;">
+            <div class="uk-container uk-container-center uk-text-center">
+
+                <ul class="uk-subnav uk-subnav-line uk-flex-center">
+                    <li><a href="http://git.wz-inc.com/devops/starlab"><i class="uk-icon-git-square"></i> GitLab</a></li>
+                    <li><a>Issues</a></li>
+                    <li><a href="http://git.wz-inc.com/devops/starlab/blob/master/README.md">Changelog</a></li>
+                    <li><a href="mailto:yuan.gao@wz-inc.com"><i class="uk-icon-envelope"></i> yuAn</a></li>
+                </ul>
+
+                <div class="uk-panel">
+                    <p>Made with love and caffeine.</p>
+                    <a href="/"><img src="{% static "img/star.png" %}" style="height: 20px;" title="STAR" alt="STAR"> LAB</a>
+                </div>
+
+            </div>
+        </div>
+
+{% endblock %}
+
+</body>
+    <script type="text/javascript" src={% static "js/jquery-1.11.2.js" %}></script>
+    <script type="text/javascript" src={% static "uikit-2.24.1/js/uikit.min.js" %}></script>
+    <script type="text/javascript" src={% static "uikit-2.24.1/js/components/datepicker.min.js" %}></script>
+    <script src={% static "sweetalert/dist/sweetalert.min.js"%}></script>
+
+    {% block js %}
+    {% endblock %}
+
+<style>
+    .tm-footer {
+        margin-top: 20px;
+        padding: 20px 0;
+        background-color: black;
+    }
+</style>
+<script type="text/javascript">
+    if(-[1,]){
+{#    alert("这不是IE浏览器！");#}
+    }else{
+    alert("本网站不支持IE浏览器");
+    }
+</script>
+</html>

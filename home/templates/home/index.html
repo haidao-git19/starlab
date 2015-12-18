@@ -1,0 +1,106 @@
+{% load staticfiles %}
+<html class="uk-height-1-1 uk-notouch">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}千寻 | 观星台{% endblock %}</title>
+        <link type="image/x-icon" rel="icon" href="{% static "img/star.ico" %}">
+        <link href="{% static "uikit-2.24.1/css/uikit.min.css" %}" rel="stylesheet">
+        <link href="{% static "uikit-2.24.1/css/doc.css" %}" rel="stylesheet">
+        <link rel="stylesheet" href={% static "sweetalert/dist/sweetalert.css"%}>
+        {% block css %}
+        {% endblock %}
+    </head>
+    {% block nav %}
+        {% include "home/nav.html" %}
+    {% endblock %}
+    <body class="uk-height-1-1">
+    {% block content %}
+        <div class="uk-vertical-align uk-text-center uk-height-1-1 firstpage">
+            <div class="uk-vertical-align-middle" style="width: 100%;">
+                <div class="uk-container uk-container-center">
+                {% block center %}
+                        <div class="uk-grid uk-grid-small" >
+                            {% for website in object_list %}
+                            <div class="uk-width-small-1-2 uk-width-medium-{{ row }} uk-margin-top uk-animation-scale-up">
+                                <a class="uk-thumbnail uk-overlay-hover" target="_blank" href="{{ website.url }}">
+                                    <figure class="uk-overlay">
+                                        <img class="uk-overlay-spin"  src="{% static website.img %}" alt="300x110" data-src="holder.js/300x110/auto" data-holder-rendered="true">
+                                        <div class="uk-overlay-panel uk-overlay-background uk-overlay-fade uk-text-break uk-text-contrast" >{{ website.description }}</div>
+                                    </figure>
+                                <div class="uk-thumbnail-caption">{{ website.name }}(负责人:{{ website.owner.last_name }}{{ website.owner.first_name }})</div>
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                {% endblock %}
+                </div>
+            </div>
+        </div>
+{#        <div class="uk-height-1-1 secondpage">#}
+{#            <div class="uk-container uk-container-center">#}
+{#                <div class="uk-grid">#}
+{#                    <div id="notice" class="uk-vertical-align-middle" style="width: 1130px;">#}
+{#                        {% block center2 %}#}
+{#                            <h1 class="tm-article-subtitle uk-margin-large-top">公告</h1>#}
+{#                                  <article class="uk-article">#}
+{#                                    <h1 class="uk-article-title">洛神赋</h1>#}
+{#                                    <p class="uk-article-meta">由 曹植 撰写于 2012年12月12日 | 发表在 博客</p>#}
+{#                                    <p class="uk-article-lead">黄初三年，余朝京师，还济洛川。古人有言，斯水之神，名曰宓妃。感宋玉对楚王神女之事，遂作斯赋，其词曰：</p>#}
+{#                                    黄初三年，余朝京师，还济洛川。古人有言，斯水之神，名曰宓妃。感宋玉对楚王神女之事，遂作斯赋，其词曰：#}
+{#                                    <hr class="uk-article-divider">#}
+{#                                    <p>余从京域，言归东藩，背伊阙 ，越轘辕，经通谷，陵景山。日既西倾，车殆马烦。尔乃税驾乎蘅皋，秣驷乎芝田，容与乎阳林，流眄乎洛川。于是精移神骇，忽焉思散。俯则未察，仰以殊观。睹一丽人，于岩之畔。乃援御者而告之曰：“尔有觌于彼者乎？彼何人斯，若此之艳也！”御者对曰：“臣闻河洛之神，名曰宓妃。然则君王所见，无乃是乎？其状若何，臣愿闻之。”</p>#}
+{#                                    <a href="#">继续阅读</a>#}
+{#                                  </article>#}
+{#                        {% endblock %}#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+    {% endblock %}
+{#    <div class="uk-text-center uk-position-">yuan.gao@wz-inc.com</div>#}
+
+    </body>
+    <script type="text/javascript" src={% static "js/jquery-1.11.2.js" %}></script>
+    <script type="text/javascript" src={% static "uikit-2.24.1/js/uikit.min.js" %}></script>
+    <script type="text/javascript" src={% static "uikit-2.24.1/js/components/grid.min.js" %}></script>
+    <script src={% static "sweetalert/dist/sweetalert.min.js"%}></script>
+    {% block js %}
+    {% endblock %}
+<style>
+    img {
+        height: 150px;
+        width: 300px;
+    }
+    .firstpage {
+        background: url("{% static "img/grid.png" %}") repeat-x;
+    }
+    .secondpage {
+        background: url("{% static "img/grid.png" %}") repeat-x;
+    }
+    .uk-navbar-nav>li.uk-active>a {
+      background-color: #24272D;
+      color: #FFF;
+    }
+    .uk-navbar {
+      background: #2B333D;
+      color: #444;
+    }
+    .uk-navbar-nav>li>a {
+      color: #C5D0DE;
+    }
+    .uk-text-write {
+        color: #FFF;
+    }
+    .uk-navbar-brand:hover {
+        color: #e69115;
+    }
+</style>
+<script type="text/javascript">
+    if(-[1,]){
+{#    alert("这不是IE浏览器！");#}
+    }else{
+    alert("本网站不支持IE浏览器");
+    }
+</script>
+</html>

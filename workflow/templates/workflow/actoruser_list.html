@@ -23,8 +23,8 @@
                             {{ currentactoruser.task.itemId.applyUserId }}
                         </td>
                         <td class="uk-text-center">
-                            <a class="uk-button uk-button-success uk-button-mini btn-agree" taskid="{{ currentactoruser.task.id }}" actorid="{{ currentactoruser.task.actorId.id }}" currentactoruserid="{{ currentactoruser.id }}" >同意</a>
-                            <a class="uk-button uk-button-danger uk-button-mini btn-refused" taskid="{{ currentactoruser.task.id }}" actorid="{{ currentactoruser.task.actorId.id }}" currentactoruserid="{{ currentactoruser.id }}">拒绝</a>
+                            <a class="uk-button uk-button-success uk-button-mini btn-agree" taskid={{ currentactoruser.task.id }} currentactoruserid={{ currentactoruser.id }}>同意</a>
+                            <a class="uk-button uk-button-danger uk-button-mini btn-refused" taskid={{ currentactoruser.task.id }} currentactoruserid={{ currentactoruser.id }}>拒绝</a>
                             <a class="uk-button uk-button-primary uk-button-mini btn-add" id="add_sign" actorid="{{ currentactoruser.task.actorId.id }}">加签</a>
                         </td>
                     </tr>
@@ -42,8 +42,8 @@
     $(".btn-agree").click(function() {
 
         var taskid = $(this).attr('taskid');
-        var actorid = $(this).attr('actorid');
-        var actoruserid = $(this).attr('actoruserid');
+{#        var actorid = $(this).attr('actorid');#}
+        var currentactoruserid = $(this).attr('currentactoruserid');
 
         swal({
             title: "是否同意审批?",
@@ -58,14 +58,14 @@
                 type: 'post',
                 data:{
                     taskid : taskid,
-                    actorid : actorid,
-                    actoruserid : actoruserid,
+{#                    actorid : actorid,#}
+                    currentactoruserid : currentactoruserid
                 },
                 dataType: 'json',
                 beforeSend: function(){
                 },
                 error: function(XHR){
-                    swal("出错了!", XHR.responseJSON.return, "error")
+                    swal("出错了!", XHR.responseJSON.return, "error");
                     $(this).isDisabled();
                 },
                 success: function(data){

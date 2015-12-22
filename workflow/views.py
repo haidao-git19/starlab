@@ -141,7 +141,6 @@ class GetActorUserFromTask(ListView):
         context = super(GetActorUserFromTask, self).get_context_data(**kwargs)
         context['current_page'] = "workflow-judge-list"
         context['judge_list'] = current_actor_user
-        print current_actor_user
         return context
 
 # ajax views
@@ -194,14 +193,15 @@ def createTask(requests):
         return render_to_json_response(result, status=200)
 
 @csrf_exempt
-def agree(requests):
+def agree(request):
     # 当前审批的任务id
-    taskid = requests.POST.get('taskid')
+    taskid = request.POST.get('taskid')
     task = TaskList.objects.get(id=taskid)
     # 当前审批的任务状态(第几步)
-    actorid = requests.POST.get('actorid')
+    actor = task.actorId
     # 当前登录用户对此任务的审批结果id
-    currentactoruserid = requests.POST.get('actoruserid')
+    currentactoruserid = request.POST.get('currentactoruserid')
+    currentactoruserid = int(currentactoruserid)
     try:
         # 获得步骤处理人
         currentactoruser = CurrentActorUser.objects.get(id=currentactoruserid)
@@ -209,14 +209,12 @@ def agree(requests):
         currentactoruser.state = True
         currentactoruser.save()
         # 获得当前步骤的所有步骤处理人模板
-        actor_user = ActorUser.objects.filter(actorId=actorid)
-        userset = CurrentActorUser.objects.filter(actorUser=actor_user, task=task)
-        au = CurrentActorUser.objects.filter(actorId=actorid)
+        current_actor_user = CurrentActorUser.objects.filter(actorId=actor, task=task)
         # 获得当前步骤的所有处理人得所有处理结果
         judge_list = []
-        for item in au:
+        for item in current_actor_user:
             judge_list.append(item.state)
-        # print judge_list
+        print judge_list
         # 如果全为True
         if False not in judge_list and None not in judge_list:
             # 获得当前任务
@@ -259,7 +257,7 @@ def agree(requests):
                 list2.append(email)
                 print list2
 
-                url = requests.build_absolute_uri(reverse('workflow:item-detail', args=[task.itemId.id]))
+                url = request.build_absolute_uri(reverse('workflow:item-detail', args=[task.itemId.id]))
                 subject = u"[审批结果]审批通过(任务ID:{})".format(task.id)
                 html_content = "<a href={}>详情点击电梯前往</a>".format(url)
                 sender = "datadev@wz-inc.com"
@@ -279,7 +277,7 @@ def agree(requests):
                 # 获得第一步所有审批人组成一个list
                 allActorUser = ActorUser.objects.filter(actorId=next_actor)
                 to_list = allActorUser.values_list('operateUserId__email', flat=True)
-                url = requests.build_absolute_uri(reverse('workflow:actoruser-list'))
+                url = request.build_absolute_uri(reverse('workflow:actoruser-list'))
                 subject = u"[审批确认]收到一个审批(任务ID:{})".format(task.id)
                 html_content = "<a href={}>点击电梯前往</a>".format(url)
                 sender = "datadev@wz-inc.com"
@@ -296,9 +294,8 @@ def agree(requests):
         result = {'return': "报错信息:{}".format(e)}
         return render_to_json_response(result, status=400)
     else:
-        result = {'return': "当前审批ID: {}".format(actoruserid)}
+        result = {'return': "当前审批ID: {}".format(currentactoruserid)}
         return render_to_json_response(result, status=200)
-
 
 #TODO
 @csrf_exempt

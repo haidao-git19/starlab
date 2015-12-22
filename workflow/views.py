@@ -110,11 +110,11 @@ class TaskListView(ListView):
         # 存入数据对
         for a in queryset:
             actor_user = CurrentActorUser.objects.filter(actorId=a.actorId, task=a)
-            # userset = CurrentActorUser.objects.filter(actorUser=actor_user, task=a)
             open_dict.append((a, actor_user))
+
         for a in close_queryset:
-            userset = ActorUser.objects.filter(actorId=a.actorId)
-            close_dict.append((a, userset))
+            actor_user = CurrentActorUser.objects.filter(actorId=a.actorId, task=a)
+            close_dict.append((a, actor_user))
         context['current_page'] = "workflow-task-list"
         context['close_queryset'] = close_dict
         context['open_queryset'] = open_dict
@@ -130,7 +130,7 @@ class GetActorUserFromTask(ListView):
 
         current_actor_user = CurrentActorUser.objects.none()
         for task in open_task:
-            current_actor_user = current_actor_user | CurrentActorUser.objects.filter(task=task)
+            current_actor_user = current_actor_user | CurrentActorUser.objects.filter(task=task, actorId=task.actorId, operateUserId=self.request.user).exclude(state=True)
 
         # for a in open_task:
         #     actor = Actor.objects.get(id=a.actorId.id)

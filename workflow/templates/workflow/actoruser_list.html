@@ -2,6 +2,7 @@
 
 {% block content %}
     <h4 class="tm-article-subtitle">待审批变更</h4>
+    {% if judge_list %}
         <table class="uk-table uk-table-hover uk-table-striped uk-table-condensed">
             <thead>
                 <tr>
@@ -14,13 +15,12 @@
             </thead>
             <tbody>
             {% for currentactoruser in judge_list %}
-                    {% if currentactoruser.operateUserId == request.user and currentactoruser.state != True%}
                     <tr>
                         <td class="uk-width-1-5"><a href="{{ currentactoruser.task.itemId.get_absolute_url }}">{{ currentactoruser.task.itemId.itemName }}</a></td>
                         <td class="uk-width-1-5">{{ currentactoruser.task.itemId.start_time|date:"y-m-d H:i" }}</td>
                         <td class="uk-width-1-5">{{ currentactoruser.task.itemId.end_time|date:"y-m-d H:i" }}</td>
                         <td class="uk-width-1-5">
-                                {{ currentactoruser.task.itemId.applyUserId }}
+                            {{ currentactoruser.task.itemId.applyUserId }}
                         </td>
                         <td class="uk-text-center">
                             <a class="uk-button uk-button-success uk-button-mini btn-agree" taskid="{{ currentactoruser.task.id }}" actorid="{{ currentactoruser.task.actorId.id }}" currentactoruserid="{{ currentactoruser.id }}" >同意</a>
@@ -28,26 +28,12 @@
                             <a class="uk-button uk-button-primary uk-button-mini btn-add" id="add_sign" actorid="{{ currentactoruser.task.actorId.id }}">加签</a>
                         </td>
                     </tr>
-                    {% endif %}
-            {% empty %}
-                <tr>asd</tr>
             {% endfor %}
             </tbody>
         </table>
-
-
-    <div class="uk-modal" id="modal_add_sign">
-        <div class="uk-modal-dialog">
-            <button type="button" class="uk-modal-close uk-close"></button>
-            <div class="uk-modal-header">
-                <h2>加签</h2>
-            </div>
-            <p>啊实打实大师的</p>
-            <div class="uk-modal-footer">
-                <button type="submit" class="uk-button">submit</button>
-            </div>
-        </div>
-    </div>
+    {% else %}
+        <p style="" class="uk-alert uk-alert-success">当前没有有关您的审批任务</p>
+    {% endif %}
 {% endblock %}
 
 

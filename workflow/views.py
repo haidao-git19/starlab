@@ -58,21 +58,21 @@ def itemcreate(request):
         else:
             return render_to_response('workflow/item_create.html', context_instance=RequestContext(request,locals()))
 
-class ItemCreateView(CreateView):
-    template_name = "workflow/item_create.html"
-    form_class = ItemCreateForm
-
-    def get_context_data(self, **kwargs):
-        context = super(ItemCreateView, self).get_context_data(**kwargs)
-        context['current_page'] = "workflow-item-create"
-        return context
-
-    def get_success_url(self):
-        return reverse_lazy("workflow:item-list")
-
-    def form_valid(self, form):
-        response = super(ItemCreateView, self).form_valid(form)
-        return response
+# class ItemCreateView(CreateView):
+#     template_name = "workflow/item_create.html"
+#     form_class = ItemCreateForm
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(ItemCreateView, self).get_context_data(**kwargs)
+#         context['current_page'] = "workflow-item-create"
+#         return context
+#
+#     def get_success_url(self):
+#         return reverse_lazy("workflow:item-list")
+#
+#     def form_valid(self, form):
+#         response = super(ItemCreateView, self).form_valid(form)
+#         return response
 
     # def form_invalid(self, form):
     #     return HttpResponse("form is invalid.. this is just an")
@@ -109,8 +109,9 @@ class TaskListView(ListView):
         close_dict = []
         # 存入数据对
         for a in queryset:
-            userset = ActorUser.objects.filter(actorId=a.actorId)
-            open_dict.append((a, userset))
+            actor_user = CurrentActorUser.objects.filter(actorId=a.actorId, task=a)
+            # userset = CurrentActorUser.objects.filter(actorUser=actor_user, task=a)
+            open_dict.append((a, actor_user))
         for a in close_queryset:
             userset = ActorUser.objects.filter(actorId=a.actorId)
             close_dict.append((a, userset))
@@ -126,19 +127,22 @@ class GetActorUserFromTask(ListView):
 
     def get_context_data(self, **kwargs):
         open_task = TaskList.objects.filter(state=0)
-        judge_list = []
-        for a in open_task:
-            actor = Actor.objects.get(id=a.actorId.id)
-            actoruser = ActorUser.objects.filter(actorId=actor.id)
-            judge_list.append((a, actoruser))
+
+        current_actor_user = CurrentActorUser.objects.none()
+        for task in open_task:
+            current_actor_user = current_actor_user | CurrentActorUser.objects.filter(task=task)
+
+        # for a in open_task:
+        #     actor = Actor.objects.get(id=a.actorId.id)
+        #     actor_user = ActorUser.objects.get(actorId=actor.actorId)
+        #     userset = CurrentActorUser.objects.filter(actorUser=actor_user, task=a)
+        #     actoruser = ActorUser.objects.filter(actorId=actor.id)
+        #     judge_list.append((a, actoruser))
         context = super(GetActorUserFromTask, self).get_context_data(**kwargs)
         context['current_page'] = "workflow-judge-list"
-        context['judge_list'] = judge_list
+        context['judge_list'] = current_actor_user
+        print current_actor_user
         return context
-
-
-
-
 
 # ajax views
 @csrf_exempt
@@ -150,24 +154,27 @@ def createTask(requests):
         item = get_object_or_404(Item, id=id)
         # 查到所选工单所用的流程模板
         rout = get_object_or_404(Rout, id=item.routID.id)
-        # 查看模板是否在使用中
-        # 只需查看当前是否有审批中状态的工单使用此模板
-        try:
-            items = get_list_or_404(Item, routID=rout, state=1)
-        except Http404:
-            items = 0
-        if items > 0:
-            result = {'return': "创建任务失败,本流程有任务正在审批中,请先处理"}
-            return render_to_json_response(result, status=400)
-        # 查到流程模板的第一个步骤
+        # 查到流程模板的所有步骤模板
         allActor = Actor.objects.filter(routId=rout.id)
+        # 查到流程模板的第一个步骤模板
         actorOne = get_object_or_404(allActor, sortNo='1')
         # 生成任务
         task = TaskList.objects.create(itemId=item, actorId=actorOne, state=0)
+
+        # 获得当前流程模板的所有步骤模板的所有处理人
+        all_actor_user = ActorUser.objects.none()
+        for i in allActor:
+            all_actor_user = all_actor_user | ActorUser.objects.filter(actorId=i)
+        # 生成本任务独有的的处理结果表
+        queryset_list = []
+        for i in all_actor_user:
+            queryset_list.append(CurrentActorUser(task=task, actorId=i.actorId, operateUserId=i.operateUserId))
+        CurrentActorUser.objects.bulk_create(queryset_list)
+
+        # 改变工单的状态为审批中
         item.state = 1
         item.save()
         # --------------------- email -----------------
-        # 获得第一步所有审批人组成一个list
         allActorUser = ActorUser.objects.filter(actorId=actorOne)
         to_list = allActorUser.values_list('operateUserId__email', flat=True)
         url = requests.build_absolute_uri(reverse('workflow:actoruser-list'))
@@ -190,18 +197,21 @@ def createTask(requests):
 def agree(requests):
     # 当前审批的任务id
     taskid = requests.POST.get('taskid')
+    task = TaskList.objects.get(id=taskid)
     # 当前审批的任务状态(第几步)
     actorid = requests.POST.get('actorid')
     # 当前登录用户对此任务的审批结果id
-    actoruserid = requests.POST.get('actoruserid')
+    currentactoruserid = requests.POST.get('actoruserid')
     try:
         # 获得步骤处理人
-        actoruser = ActorUser.objects.get(id=actoruserid, actorId=actorid)
+        currentactoruser = CurrentActorUser.objects.get(id=currentactoruserid)
         # 处理结果边为agree
-        actoruser.state = True
-        actoruser.save()
-        # 获得当前步骤的所有步骤处理人
-        au = ActorUser.objects.filter(actorId=actorid)
+        currentactoruser.state = True
+        currentactoruser.save()
+        # 获得当前步骤的所有步骤处理人模板
+        actor_user = ActorUser.objects.filter(actorId=actorid)
+        userset = CurrentActorUser.objects.filter(actorUser=actor_user, task=task)
+        au = CurrentActorUser.objects.filter(actorId=actorid)
         # 获得当前步骤的所有处理人得所有处理结果
         judge_list = []
         for item in au:

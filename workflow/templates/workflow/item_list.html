@@ -58,7 +58,7 @@
                                 <td class="uk-width-1-5">{{ item.start_time|date:"y-m-d H:i" }}</td>
                                 <td class="uk-width-1-5">{{ item.end_time|date:"y-m-d H:i" }}</td>
                                 <td class="uk-width-1-5 uk-text-danger">{{ item.get_state_display }}</td>
-                                <td class="uk-width-1-5 uk-text-center"><div class="uk-badge uk-badge-warning">审批中不能编辑</div></td>
+                                <td class="uk-width-1-5 uk-text-center"><div class="uk-badge uk-badge-danger">审批中不能操作</div></td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -86,7 +86,11 @@
                                 <td class="uk-width-1-5">{{ item.start_time|date:"y-m-d H:i" }}</td>
                                 <td class="uk-width-1-5">{{ item.end_time|date:"y-m-d H:i" }}</td>
                                 <td class="uk-width-1-5 uk-text-muted">{{ item.get_state_display }}</td>
-                                <td class="uk-width-1-5 uk-text-center"><a class="uk-button uk-button-primary uk-button-mini btn-start" pk="{{ item.id }}">重新创建审批任务</a></td>
+                                {% if item.applyUserId == request.user %}
+                                    <td class="uk-width-1-5 uk-text-center"><a class="uk-button uk-button-primary uk-button-mini btn-start" pk="{{ item.id }}">重新创建审批任务</a></td>
+                                {% else %}
+                                    <td class="uk-width-1-5 uk-text-center"><div class="uk-badge uk-badge-danger">不是你创建的审批任务</div></td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                         </tbody>

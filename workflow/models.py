@@ -146,27 +146,19 @@ class ActorUser(models.Model):
         verbose_name_plural = "步骤处理人"
         ordering = ['actorId', ]
 
-    # def save(self, *args, **kwargs):
-    #     if self.state == True:
-    #         # 当前步骤
-    #         print "1"
-    #         currentActor = Actor.objects.get(id=self.actorId.id)
-    #         # 当前步骤所有审核人的审核情况
-    #         allActorUser = ActorUser.objects.filter(actorId=currentActor.id)
-    #         judge_list = []
-    #         # 判断所有人得审核情况
-    #         for au in allActorUser:
-    #             judge_list.append(au.state)
-    #         if not any(judge_list):
-    #             print "2"
-    #             currentTask = TaskList.objects.get(actorId=self.actorId)
-    #             # error currentTask 不唯一
-    #             currentTask.actorId = Actor.objects.get(sortNo=currentActor.sortNo+1)
-    #             currentTask.save()
-    #
-    #         print "3"
-    #     super(self.__class__, self).save(*args, **kwargs)
 
+class CurrentActorUser(models.Model):
+    # new
+    task = models.ForeignKey('workflow.TaskList')
+    comment = models.CharField(max_length=255, blank=True, null=True)
+    # old
+    actorId = models.ForeignKey('workflow.Actor')
+    type = models.IntegerField(choices=ACTORUSER_TYPE, default=0)
+    operateUserId = models.ForeignKey('auth.User')
+    state = models.NullBooleanField(default=None)
+
+    def __unicode__(self):
+        return u"{}--{}({})决定是否通过:{}".format(self.task, self.operateUserId.username, self.get_type_display(), self.state)
 
 class TaskHistory(models.Model):
     itemId = models.ForeignKey(Item)
@@ -185,6 +177,7 @@ admin.site.register(TaskList)
 admin.site.register(Rout)
 admin.site.register(Actor)
 admin.site.register(ActorUser)
+admin.site.register(CurrentActorUser)
 admin.site.register(TaskHistory)
 # ----------------------------------
 

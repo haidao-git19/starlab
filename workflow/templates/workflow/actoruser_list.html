@@ -2,7 +2,6 @@
 
 {% block content %}
     <h4 class="tm-article-subtitle">待审批变更</h4>
-    {% if judge_list %}
         <table class="uk-table uk-table-hover uk-table-striped uk-table-condensed">
             <thead>
                 <tr>
@@ -14,30 +13,27 @@
                 </tr>
             </thead>
             <tbody>
-            {% for task,actoruser in judge_list %}
-                {% for item in actoruser %}
-                    {% if item.operateUserId == request.user and item.state != True%}
+            {% for currentactoruser in judge_list %}
+                    {% if currentactoruser.operateUserId == request.user and currentactoruser.state != True%}
                     <tr>
-                        <td class="uk-width-1-5"><a href="{{ task.itemId.get_absolute_url }}">{{ task.itemId.itemName }}</a></td>
-                        <td class="uk-width-1-5">{{ task.itemId.start_time|date:"y-m-d H:i" }}</td>
-                        <td class="uk-width-1-5">{{ task.itemId.end_time|date:"y-m-d H:i" }}</td>
+                        <td class="uk-width-1-5"><a href="{{ currentactoruser.task.itemId.get_absolute_url }}">{{ currentactoruser.task.itemId.itemName }}</a></td>
+                        <td class="uk-width-1-5">{{ currentactoruser.task.itemId.start_time|date:"y-m-d H:i" }}</td>
+                        <td class="uk-width-1-5">{{ currentactoruser.task.itemId.end_time|date:"y-m-d H:i" }}</td>
                         <td class="uk-width-1-5">
-                                {{ task.itemId.applyUserId }}
+                                {{ currentactoruser.task.itemId.applyUserId }}
                         </td>
                         <td class="uk-text-center">
-                            <a class="uk-button uk-button-success uk-button-mini btn-agree" taskid="{{ task.id }}" actorid="{{ task.actorId.id }}" actoruserid="{{ item.id }}" >同意</a>
-                            <a class="uk-button uk-button-danger uk-button-mini btn-refused" taskid="{{ task.id }}" actorid="{{ task.actorId.id }}" actoruserid="{{ item.id }}">拒绝</a>
-                            <a class="uk-button uk-button-primary uk-button-mini btn-add" id="add_sign" actorid="{{ task.actorId.id }}">加签</a>
+                            <a class="uk-button uk-button-success uk-button-mini btn-agree" taskid="{{ currentactoruser.task.id }}" actorid="{{ currentactoruser.task.actorId.id }}" currentactoruserid="{{ currentactoruser.id }}" >同意</a>
+                            <a class="uk-button uk-button-danger uk-button-mini btn-refused" taskid="{{ currentactoruser.task.id }}" actorid="{{ currentactoruser.task.actorId.id }}" currentactoruserid="{{ currentactoruser.id }}">拒绝</a>
+                            <a class="uk-button uk-button-primary uk-button-mini btn-add" id="add_sign" actorid="{{ currentactoruser.task.actorId.id }}">加签</a>
                         </td>
                     </tr>
                     {% endif %}
-                {% endfor %}
+            {% empty %}
+                <tr>asd</tr>
             {% endfor %}
             </tbody>
         </table>
-    {% else %}
-        <p style="" class="uk-alert uk-alert-success">暂无待审批申请</p>
-    {% endif %}
 
 
     <div class="uk-modal" id="modal_add_sign">

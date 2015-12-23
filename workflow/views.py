@@ -217,15 +217,13 @@ def agree(request):
         print judge_list
         # 如果全为True
         if False not in judge_list and None not in judge_list:
-            # 获得当前任务
-            task = TaskList.objects.get(id=taskid)
             # 获得当前任务的步骤编号
             sortNo = task.actorId.sortNo
 
             # # 拿到当前任务的模板对应的并且编号为sortNo的步骤
             # actor = Actor.objects.get(routId=task.actorId.routId, sortNo=sortNo)
 
-            # 拿到当前任务使用模板的当前次序的所有步骤
+            # 拿到当前任务使用*模板*的当前次序的所有步骤
             allactor = Actor.objects.filter(routId=task.actorId.routId)
             next_actor = allactor.get(sortNo=sortNo+1)
             if len(allactor) == sortNo + 1:
@@ -238,16 +236,8 @@ def agree(request):
                 item = get_object_or_404(Item, id=task.itemId.id)
                 item.state = 2
                 item.save()
-                # 任务所有审批人初始化为未审批状态
-                actors = Actor.objects.filter(routId=item.routID)
-                for actor in actors:
-                    actorusers = get_list_or_404(ActorUser, actorId=actor)
-                    for actoruser in actorusers:
-                        if actoruser.type == 1:
-                            actoruser.delete()
-                        else:
-                            actoruser.state = None
-                            actoruser.save()
+                # 直接删除所有当前审批人
+                current_actor_user.delete()
 
                 # --------------------- email -----------------
                 over_ActorUser = ActorUser.objects.filter(actorId=task.actorId)

@@ -181,11 +181,9 @@ def createTask(request):
         allCurrentActorUser = CurrentActorUser.objects.filter(task=task, actorId=actorOne)
         ids = allCurrentActorUser.values_list('operateUserId__username', flat=True)
         url = request.build_absolute_uri(reverse('workflow:actoruser-list'))
-        content = u"[审批确认]收到一个审批(任务ID:{})".format(task.id)
-
         jsonmsg = {
-            "title": "审批确认",
-            "text": "收到一个审批:{}".format(task.itemId.itemName),
+            "title": "收到一个审批确认",
+            "text": "{},流程ID:{}".format(task.itemId.itemName, task.id),
             "picUrl": "@lALOACZwe2Rk",
             "messageUrl": url,
         }

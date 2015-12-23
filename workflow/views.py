@@ -148,7 +148,7 @@ class GetActorUserFromTask(ListView):
 
 # ajax views
 @csrf_exempt
-def createTask(requests):
+def createTask(request):
     id = requests.POST.get('id')
     id = int(id)
     try:
@@ -177,25 +177,25 @@ def createTask(requests):
         item.state = 1
         item.save()
         # --------------------- ding -----------------
-        # dd = DingDing()
-        # allCurrentActorUser = CurrentActorUser.objects.filter(task=task, actorId=actorOne)
-        # ids = allCurrentActorUser.values_list('operateUserId__username', flat=True)
-        # url = requests.build_absolute_uri(reverse('workflow:actoruser-list'))
-        # content = u"[审批确认]收到一个审批(任务ID:{})".format(task.id)
-        #
-        # jsonmsg = {
-        #     "title": "审批确认",
-        #     "text": "收到一个审批:{}".format(task.itemId.itemName),
-        #     "picUrl": "@lALOACZwe2Rk",
-        #     "messageUrl": "http://s.dingtalk.com/market/dingtalk/error_code.php",
-        # }
-        # for id in ids:
-        #     dd.send_link_message(ddID=id, json_content=jsonmsg)
+        dd = DingDing()
+        allCurrentActorUser = CurrentActorUser.objects.filter(task=task, actorId=actorOne)
+        ids = allCurrentActorUser.values_list('operateUserId__username', flat=True)
+        url = request.build_absolute_uri(reverse('workflow:actoruser-list'))
+        content = u"[审批确认]收到一个审批(任务ID:{})".format(task.id)
+
+        jsonmsg = {
+            "title": "审批确认",
+            "text": "收到一个审批:{}".format(task.itemId.itemName),
+            "picUrl": "@lALOACZwe2Rk",
+            "messageUrl": url,
+        }
+        for id in ids:
+            dd.send_link_message(ddID=id, json_content=jsonmsg)
         # --------------------- ding -----------------
         # --------------------- email -----------------
         allActorUser = ActorUser.objects.filter(actorId=actorOne)
         to_list = allActorUser.values_list('operateUserId__email', flat=True)
-        url = requests.build_absolute_uri(reverse('workflow:actoruser-list'))
+        url = request.build_absolute_uri(reverse('workflow:actoruser-list'))
         subject = u"[审批确认]收到一个审批(任务ID:{})".format(task.id)
         html_content = "<a href={}>点击电梯前往</a>".format(url)
         sender = "datadev@wz-inc.com"

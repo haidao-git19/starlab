@@ -12,8 +12,9 @@
                             <tr>
                                 <th class="uk-width-1-5">任务编号</th>
                                 <th class="uk-width-1-5">所属工单</th>
-                                <th class="uk-width-2-5">任务当前状态</th>
-                                <th class="uk-width-1-5">审批人与状态
+                                <th class="uk-width-1-5">任务当前状态</th>
+                                <th class="uk-width-1-5">comment</th>
+                                <th class="uk-width-1-5">状态
                                     <div class="uk-badge">未定</div>
                                     <div class="uk-badge uk-badge-danger">拒绝</div>
                                     <div class="uk-badge uk-badge-success">同意</div>
@@ -25,7 +26,8 @@
                             <tr>
                                 <td class="uk-width-1-5">{{ item.id }}</td>
                                 <td class="uk-width-1-5"><a href="{{ item.itemId.get_absolute_url }}">{{ item.itemId.itemName }}</a></td>
-                                <td class="uk-width-2-5"><div class="uk-badge uk-text-bottom">{{ item.actorId.actorName }}</div></td>
+                                <td class="uk-width-1-5"><div class="uk-badge uk-text-bottom">{{ item.actorId.actorName }}</div></td>
+                                <td class="uk-width-1-5 uk-text-muted">{{ item.version|linebreaksbr }}</td>
                                 <td class="uk-width-1-5">
                                     <div>
                                         {% for item in users %}
@@ -56,8 +58,7 @@
                                 <th class="uk-width-1-5">任务编号</th>
                                 <th class="uk-width-1-5">所属工单</th>
                                 <th class="uk-width-1-5">最终状态</th>
-                                <th class="uk-width-1-5">备注</th>
-                                <th class="uk-width-1-5">状态</th>
+                                <th class="uk-width-2-5">备注</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -66,8 +67,7 @@
                                 <td class="uk-width-1-5">{{ item.id }}</td>
                                 <td class="uk-width-1-5"><a href="{{ item.itemId.get_absolute_url }}">{{ item.itemId.itemName }}</a></td>
                                 <td class="uk-width-1-5"><div class="uk-badge uk-text-bottom">{{ item.actorId.actorName }}</div></td>
-                                <td class="uk-width-1-5 uk-text-muted">{{ item.version }}</td>
-                                <td class="uk-width-1-5"><i class="uk-icon-check-circle uk-text-success"></i></td>
+                                <td class="uk-width-2-5 uk-text-muted">{{ item.version|linebreaksbr }}</td>
 {#                                <td class="uk-text-center">#}
 {#                                    <div>#}
 {#                                        {% for item in users %}#}

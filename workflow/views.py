@@ -13,10 +13,13 @@ from .forms import ItemCreateForm
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.shortcuts import redirect
 from django.http import Http404
+import time
 
 from django.contrib.auth.models import User
 
 from django.core.mail import EmailMultiAlternatives
+
+from .DingDing import DingDing
 
 def render_to_json_response(context, **response_kwargs):
     data = json.dumps(context)
@@ -173,6 +176,22 @@ def createTask(requests):
         # 改变工单的状态为审批中
         item.state = 1
         item.save()
+        # --------------------- ding -----------------
+        # dd = DingDing()
+        # allCurrentActorUser = CurrentActorUser.objects.filter(task=task, actorId=actorOne)
+        # ids = allCurrentActorUser.values_list('operateUserId__username', flat=True)
+        # url = requests.build_absolute_uri(reverse('workflow:actoruser-list'))
+        # content = u"[审批确认]收到一个审批(任务ID:{})".format(task.id)
+        #
+        # jsonmsg = {
+        #     "title": "审批确认",
+        #     "text": "收到一个审批:{}".format(task.itemId.itemName),
+        #     "picUrl": "@lALOACZwe2Rk",
+        #     "messageUrl": "http://s.dingtalk.com/market/dingtalk/error_code.php",
+        # }
+        # for id in ids:
+        #     dd.send_link_message(ddID=id, json_content=jsonmsg)
+        # --------------------- ding -----------------
         # --------------------- email -----------------
         allActorUser = ActorUser.objects.filter(actorId=actorOne)
         to_list = allActorUser.values_list('operateUserId__email', flat=True)
@@ -196,6 +215,11 @@ def createTask(requests):
 def agree(request):
     # 当前审批的任务id
     taskid = request.POST.get('taskid')
+    comment = request.POST.get('comment', None)
+    if comment:
+        pass
+    else:
+        comment = "空"
     task = TaskList.objects.get(id=taskid)
     # 当前审批的任务状态(第几步)
     actor = task.actorId
@@ -231,13 +255,20 @@ def agree(request):
                 task.actorId = next_actor
                 # 任务变成完成状态
                 task.state = 1
+                # 增加审批历史到task
+                task.version += u"{} {}{}同意,备注:{}\n[审批结束]".format(
+                    time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                    currentactoruser.operateUserId.last_name,
+                    currentactoruser.operateUserId.first_name,
+                    comment
+                )
                 task.save()
                 # 任务对应工单变为关闭状态
                 item = get_object_or_404(Item, id=task.itemId.id)
                 item.state = 2
                 item.save()
-                # 直接删除所有当前审批人
-                current_actor_user.delete()
+                # 直接删除当前任务所有当前审批人
+                CurrentActorUser.objects.filter(task=task).all().delete()
 
                 # --------------------- email -----------------
                 over_ActorUser = ActorUser.objects.filter(actorId=task.actorId)
@@ -262,6 +293,12 @@ def agree(request):
             else:
                 # 只是任务流程推进
                 task.actorId = next_actor
+                task.version += u"{} {}{}同意,备注:{}\n".format(
+                    time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                    currentactoruser.operateUserId.last_name,
+                    currentactoruser.operateUserId.first_name,
+                    comment
+                )
                 task.save()
                 # --------------------- email -----------------
                 # 获得第一步所有审批人组成一个list
@@ -276,10 +313,16 @@ def agree(request):
                 msg.attach_alternative(html_content, "text/html")
                 msg.send()
                 # --------------------- email -----------------
-                result = {'return': u"步骤审批人全部通过审批,状态自动改变为:{}".format(task.actorId.actorName)}
+                result = {'return': u"当前步骤审批人全部通过审批,状态自动改变为:{}".format(task.actorId.actorName)}
             return render_to_json_response(result, status=200)
         else:
-            pass
+            task.version += u"{} {}{}同意,备注:{}\n".format(
+                time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                currentactoruser.operateUserId.last_name,
+                currentactoruser.operateUserId.first_name,
+                comment
+            )
+            task.save()
     except Exception, e:
         result = {'return': "报错信息:{}".format(e)}
         return render_to_json_response(result, status=400)
@@ -289,38 +332,48 @@ def agree(request):
 
 #TODO
 @csrf_exempt
-def disagree(requests):
+def disagree(request):
     # 当前审批的任务id
-    taskid = requests.POST.get('taskid')
+    taskid = request.POST.get('taskid')
+    task = TaskList.objects.get(id=taskid)
     # 当前审批的任务状态(第几步)
-    actorid = requests.POST.get('actorid')
+    actor = task.actorId
     # 当前登录用户对此任务的审批结果id
-    actoruserid = requests.POST.get('actoruserid')
+    currentactoruserid = request.POST.get('currentactoruserid')
+    # 备注
+    comment = request.POST.get('comment', None)
+    if comment:
+        pass
+    else:
+        comment = "空"
     try:
-        # 任务
-        task = get_object_or_404(TaskList, id=taskid)
-        # 第几部
-        actor = get_object_or_404(Actor, id=actorid)
         # 状态
-        actorUser = get_object_or_404(ActorUser, id=actoruserid)
+        currentactoruser = get_object_or_404(CurrentActorUser, id=currentactoruserid)
         # 拒绝并保存
-        actorUser.state=False
-        actorUser.save()
+        currentactoruser.state=False
+        currentactoruser.save()
         # 任务变为完成
         task.state = 1
-        task.version = u"在{}被{}关闭".format(task.actorId.actorName, actorUser.operateUserId.email)
+        task.version += u"{} {}{}拒绝,原因:{}\n".format(
+            time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+            currentactoruser.operateUserId.last_name,
+            currentactoruser.operateUserId.first_name,
+            comment
+        )
         task.save()
 
         item = get_object_or_404(Item, id=task.itemId.id)
         item.state = 0
         item.save()
+        # 直接删除当前任务所有当前审批人
+        CurrentActorUser.objects.filter(task=task).all().delete()
     except Exception,e:
         result = {'return': "报错信息:{}".format(e)}
         return render_to_json_response(result, status=400)
     # --------------------- email -----------------
     to_list = [task.itemId.applyUserId.email,]
-    url = requests.build_absolute_uri(reverse('workflow:item-detail', args=[task.itemId.id]))
-    subject = u"[审批结果]审批被{}拒绝(任务ID:{})".format(actorUser.operateUserId.email,task.id)
+    url = request.build_absolute_uri(reverse('workflow:item-detail', args=[task.itemId.id]))
+    subject = u"[审批结果]审批被{}拒绝(任务ID:{})".format(currentactoruser.operateUserId.email,task.id)
     html_content = "<a href={}>详情点击电梯前往</a>".format(url)
     sender = "datadev@wz-inc.com"
     recipients = to_list
@@ -340,6 +393,8 @@ def add_sign(request):
     # 去掉两遍的空格
     email = email.strip()
     # 当前审批的任务状态(第几步)
+    taskid = request.POST.get('taskid')
+    task = TaskList.objects.get(id=taskid)
     actorid = request.POST.get('actorid')
     actor = get_object_or_404(Actor, id=actorid)
     # # 当前登录用户对此任务的审批结果id
@@ -347,7 +402,7 @@ def add_sign(request):
     try:
         user = get_object_or_404(User, email=email)
         print user
-        actoruser = ActorUser.objects.create(actorId=actor, operateUserId=user, type=1)
+        actoruser = CurrentActorUser.objects.create(task=task, actorId=actor, operateUserId=user, type=1)
         # --------------------- email -----------------
         # 获得第一步所有审批人组成一个list
         to_list = [email, ]
@@ -363,5 +418,5 @@ def add_sign(request):
         result = {'return': u"用户:{}{}已加签到{}".format(user.last_name,user.first_name,  actor.actorName)}
         return render_to_json_response(result, status=200)
     except Exception, e:
-        result = {'return': u"账户未登录过(请通知该用户使用AD账号登录一次本系统)或者邮箱输入错误!({})".format(e)}
+        result = {'return': u"邮箱输入错误或账户未登录过(请通知该用户使用AD账号登录一次本系统)!({})".format(e)}
         return render_to_json_response(result, status=400)

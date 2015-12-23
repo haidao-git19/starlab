@@ -25,7 +25,7 @@
                         <td class="uk-text-center">
                             <a class="uk-button uk-button-success uk-button-mini btn-agree" taskid={{ currentactoruser.task.id }} currentactoruserid={{ currentactoruser.id }}>同意</a>
                             <a class="uk-button uk-button-danger uk-button-mini btn-refused" taskid={{ currentactoruser.task.id }} currentactoruserid={{ currentactoruser.id }}>拒绝</a>
-                            <a class="uk-button uk-button-primary uk-button-mini btn-add" id="add_sign" actorid="{{ currentactoruser.task.actorId.id }}">加签</a>
+                            <a class="uk-button uk-button-primary uk-button-mini add_sign" taskid={{ currentactoruser.task.id }} actorid="{{ currentactoruser.task.actorId.id }}">加签</a>
                         </td>
                     </tr>
             {% endfor %}
@@ -45,21 +45,15 @@
 {#        var actorid = $(this).attr('actorid');#}
         var currentactoruserid = $(this).attr('currentactoruserid');
 
-        swal({
-            title: "是否同意审批?",
-            text: "同意后将不能加签",
-            type: "info",
-            showCancelButton: true,
-            closeOnConfirm: false,
-            showLoaderOnConfirm: true
-        }, function () {
+        UIkit.modal.prompt('点击OK同意审批,如果有备注,请输入:', '', function(comment){
             $.ajax({
                 url:'{% url "workflow:agree" %}',
                 type: 'post',
                 data:{
                     taskid : taskid,
 {#                    actorid : actorid,#}
-                    currentactoruserid : currentactoruserid
+                    currentactoruserid : currentactoruserid,
+                    comment: comment
                 },
                 dataType: 'json',
                 beforeSend: function(){
@@ -89,24 +83,16 @@
     $(".btn-refused").click(function() {
 
         var taskid = $(this).attr('taskid');
-        var actorid = $(this).attr('actorid');
-        var actoruserid = $(this).attr('actoruserid');
+        var currentactoruserid = $(this).attr('currentactoruserid');
 
-        swal({
-            title: "确定拒绝?",
-            text: "拒绝后审批任务将关闭并通知审批人",
-            type: "info",
-            showCancelButton: true,
-            closeOnConfirm: false,
-            showLoaderOnConfirm: true
-        }, function () {
+        UIkit.modal.prompt('请输入拒绝理由:', '', function(comment){
             $.ajax({
                 url:'{% url "workflow:disagree" %}',
                 type: 'post',
                 data:{
                     taskid : taskid,
-                    actorid : actorid,
-                    actoruserid : actoruserid,
+                    currentactoruserid : currentactoruserid,
+                    comment : comment
                 },
                 dataType: 'json',
                 beforeSend: function(){
@@ -134,13 +120,15 @@
     });
 
 
-    $("#add_sign").click(function() {
+    $(".add_sign").click(function() {
+        var taskid = $(this).attr('taskid');
         var actorid = $(this).attr('actorid');
         UIkit.modal.prompt('请输入被加签人的邮箱:', '', function(email){
             $.ajax({
                 url:'{% url "workflow:add_sign" %}',
                 type: 'post',
                 data:{
+                    taskid: taskid,
                     actorid : actorid,
                     email: email
                 },

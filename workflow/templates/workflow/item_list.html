@@ -1,12 +1,13 @@
 {% extends "workflow/index.html" %}
 
 {% block content %}
-                <div class="uk-text-muted uk-panel uk-panel-box">
+                <div class="uk-text-bold uk-panel uk-panel-box uk-panel-box-secondary">
                     说明: 每次变更创建之后并不会开启审批流程,点击
                     <button class="uk-button uk-button-success uk-button-mini">开始创建审批任务</button>
                     或者
                     <button class="uk-button uk-button-primary uk-button-mini">重新创建审批任务</button>
-                    之后,会生成一个带有编号的审批任务并开启审批,同一个变更可以重复生成审批任务.
+                    之后,会生成一个带有编号的审批任务并开启审批任务流,同一个变更可以重复生成审批任务,
+                    被拒绝的审批任务会使工单重新变为刚创建未生成任务流的状态.
                 </div>
                 <h4 class="tm-article-subtitle">未创建审批任务的变更</h4>
                 {% if object_list %}

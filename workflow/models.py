@@ -86,7 +86,7 @@ class TaskList(models.Model):
     itemId = models.ForeignKey(Item, verbose_name="工单")
     actorId = models.ForeignKey("workflow.Actor", verbose_name="步骤")
     state = models.IntegerField(choices=STATE_CHOICES1, default=1)
-    version = models.CharField(max_length=50)
+    version = models.CharField(max_length=500, default=u"[任务开始]\n")
 
     def __unicode__(self):
         return u"{}--({})".format(self.itemId, self.actorId)

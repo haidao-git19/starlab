@@ -149,7 +149,7 @@ class GetActorUserFromTask(ListView):
 # ajax views
 @csrf_exempt
 def createTask(request):
-    id = requests.POST.get('id')
+    id = request.POST.get('id')
     id = int(id)
     try:
         # 得到所选工单
@@ -183,7 +183,7 @@ def createTask(request):
         url = request.build_absolute_uri(reverse('workflow:actoruser-list'))
         jsonmsg = {
             "title": "收到一个审批确认",
-            "text": "{},流程ID:{}".format(task.itemId.itemName, task.id),
+            "text": "{}\n任务ID:{}".format(task.itemId.itemName, task.id),
             "picUrl": "@lALOACZwe2Rk",
             "messageUrl": url,
         }
@@ -265,12 +265,10 @@ def agree(request):
                 item = get_object_or_404(Item, id=task.itemId.id)
                 item.state = 2
                 item.save()
-                # 直接删除当前任务所有当前审批人
-                CurrentActorUser.objects.filter(task=task).all().delete()
 
                 # --------------------- email -----------------
-                over_ActorUser = ActorUser.objects.filter(actorId=task.actorId)
-                list1 = over_ActorUser.values_list('operateUserId__email', flat=True)
+                over_CurrentActorUser = CurrentActorUser.objects.filter(task=task, actorId=task.actorId)
+                list1 = over_CurrentActorUser.values_list('operateUserId__email', flat=True)
                 list2 = []
                 email = str(task.itemId.applyUserId.email)
                 list2.append(email)
@@ -287,6 +285,25 @@ def agree(request):
                 msg1.attach_alternative(html_content, "text/html")
                 msg1.send()
                 # --------------------- email -----------------
+                # --------------------- ding -----------------
+                dd = DingDing()
+                over_CurrentActorUser = CurrentActorUser.objects.filter(task=task, actorId=task.actorId)
+                ids = over_CurrentActorUser.values_list('operateUserId__username', flat=True)
+                another_id = task.itemId.applyUserId.username
+                url = request.build_absolute_uri(reverse('workflow:item-detail', args=[task.itemId.id]))
+                jsonmsg = {
+                    "title": "审批完成",
+                    "text": "{}\n任务ID:{}".format(task.itemId.itemName, task.id),
+                    "picUrl": "@lALOACZwe2Rk",
+                    "messageUrl": url,
+                }
+                dd.send_link_message(ddID=another_id, json_content=jsonmsg)
+                for id in ids:
+                    dd.send_link_message(ddID=id, json_content=jsonmsg)
+                # --------------------- ding -----------------
+
+                # 直接删除当前任务所有当前审批人
+                CurrentActorUser.objects.filter(task=task).all().delete()
                 result = {'return': u"全部审批结束,任务状态确认:{}".format(task.actorId.actorName)}
             else:
                 # 只是任务流程推进
@@ -311,6 +328,20 @@ def agree(request):
                 msg.attach_alternative(html_content, "text/html")
                 msg.send()
                 # --------------------- email -----------------
+                # --------------------- ding -----------------
+                dd = DingDing()
+                over_CurrentActorUser = CurrentActorUser.objects.filter(task=task, actorId=task.actorId)
+                ids = over_CurrentActorUser.values_list('operateUserId__username', flat=True)
+                url = request.build_absolute_uri(reverse('workflow:actoruser-list'))
+                jsonmsg = {
+                    "title": "收到一个审批确认",
+                    "text": "{}\n任务ID:{}".format(task.itemId.itemName, task.id),
+                    "picUrl": "@lALOACZwe2Rk",
+                    "messageUrl": url,
+                }
+                for id in ids:
+                    dd.send_link_message(ddID=id, json_content=jsonmsg)
+                # --------------------- ding -----------------
                 result = {'return': u"当前步骤审批人全部通过审批,状态自动改变为:{}".format(task.actorId.actorName)}
             return render_to_json_response(result, status=200)
         else:
@@ -379,6 +410,22 @@ def disagree(request):
     msg.attach_alternative(html_content, "text/html")
     msg.send()
     # --------------------- email -----------------
+    # --------------------- ding -----------------
+    dd = DingDing()
+    ids = [task.itemId.applyUserId.username,]
+    url = request.build_absolute_uri(reverse('workflow:item-detail', args=[task.itemId.id]))
+    jsonmsg = {
+        "title": "审批结果",
+        "text": "{}任务被{}{}拒绝\n任务ID:{}".format(task.itemId.itemName,
+                                            currentactoruser.operateUserId.last_name,
+                                            currentactoruser.operateUserId.first_name,
+                                            task.id),
+        "picUrl": "@lALOACZwe2Rk",
+        "messageUrl": url,
+    }
+    for id in ids:
+        dd.send_link_message(ddID=id, json_content=jsonmsg)
+    # --------------------- ding -----------------
     result = {'return': u"任务结束,变更变为关闭,并已邮件通知申请人"}
     return render_to_json_response(result, status=200)
 
@@ -413,6 +460,19 @@ def add_sign(request):
         msg.attach_alternative(html_content, "text/html")
         msg.send()
         # --------------------- email -----------------
+        # --------------------- ding -----------------
+        dd = DingDing()
+        ids = [user.username,]
+        url = request.build_absolute_uri(reverse('workflow:actoruser-list'))
+        jsonmsg = {
+            "title": "审批加签",
+            "text": "你被加签到一个变更审批:{}\n任务ID:{}".format(task.itemId.itemName, task.id),
+            "picUrl": "@lALOACZwe2Rk",
+            "messageUrl": url,
+        }
+        for id in ids:
+            dd.send_link_message(ddID=id, json_content=jsonmsg)
+        # --------------------- ding -----------------
         result = {'return': u"用户:{}{}已加签到{}".format(user.last_name,user.first_name,  actor.actorName)}
         return render_to_json_response(result, status=200)
     except Exception, e:

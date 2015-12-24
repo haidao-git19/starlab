@@ -4,6 +4,7 @@ import urllib, urllib2
 import json, time
 from urllib2 import URLError
 
+
 class DingDing:
     def __init__(self):
         self.url = 'https://oapi.dingtalk.com/gettoken?corpid=ding7dd0fd2e5b257e6e&corpsecret=9QzGezdj8HDwNLrZDE2Bx2dq6ckrN1rsvH0hDtuUPcuEYi_65P6HIS9hEZNN1zxb'

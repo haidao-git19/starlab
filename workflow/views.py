@@ -451,7 +451,14 @@ def add_sign(request):
     try:
         user = get_object_or_404(User, email=email)
         print user
-        actoruser = CurrentActorUser.objects.create(task=task, actorId=actor, operateUserId=user, type=1)
+        currentactoruser = CurrentActorUser.objects.create(task=task, actorId=actor, operateUserId=user, type=1)
+        task.version += u"{} {}{}被加签到{}".format(
+            time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+            currentactoruser.operateUserId.last_name,
+            currentactoruser.operateUserId.first_name,
+            actor.actorName
+        )
+        task.save()
         # --------------------- email -----------------
         # 获得第一步所有审批人组成一个list
         to_list = [email, ]

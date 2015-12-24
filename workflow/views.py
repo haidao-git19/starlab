@@ -16,10 +16,14 @@ from django.http import Http404
 import time
 
 from django.contrib.auth.models import User
-
 from django.core.mail import EmailMultiAlternatives
-
 from .DingDing import DingDing
+
+id_list = ['lunyun.ly',]
+ID = {
+    'luoyun.ly': 'luobin.ly',
+}
+
 
 def render_to_json_response(context, **response_kwargs):
     data = json.dumps(context)

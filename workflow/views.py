@@ -44,6 +44,10 @@ class ItemListView(ListView):
         return context
 
 
+class TaskListSearchView(ListView):
+    pass
+
+
 class ItemDetailView(DetailView):
     model = Item
     template_name = "workflow/item_detail.html"
@@ -452,7 +456,7 @@ def add_sign(request):
         user = get_object_or_404(User, email=email)
         print user
         currentactoruser = CurrentActorUser.objects.create(task=task, actorId=actor, operateUserId=user, type=1)
-        task.version += u"{} {}{}被加签到{}".format(
+        task.version += u"{} {}{}被加签到{}\n".format(
             time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
             currentactoruser.operateUserId.last_name,
             currentactoruser.operateUserId.first_name,

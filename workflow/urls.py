@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^item_detail/(?P<pk>[-\w]+)/$', ItemDetailView.as_view(), name='item-detail'),
     # url(r'^itemcreate/$', ItemCreateView.as_view(), name='item-create'),
     url(r'^tasks/$', TaskListView.as_view(), name='task-list'),
+    url(r'^search-task/$', taskListSearchView, name='search-task'),
     url(r'^actorUser/$', login_required(GetActorUserFromTask.as_view()), name='actoruser-list'),
 ]
 

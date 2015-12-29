@@ -99,8 +99,8 @@
 
 
                 <div class="uk-navbar-content uk-navbar-flip  uk-hidden-small">
-                    <form class="uk-form uk-margin-remove uk-display-inline-block" method="get" action="/">
-                        <input type="text" placeholder="搜索">
+                    <form class="uk-form uk-margin-remove uk-display-inline-block" method="get" action="{% url "workflow:search-task" %}">
+                        <input type="text" placeholder="全字段查询" name="search">
                         <button class="uk-button uk-button-primary">提交</button>
                     </form>
                 </div>

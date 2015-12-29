@@ -19,6 +19,8 @@ from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
 from .DingDing import DingDing
 
+from django.db.models import Q
+
 id_list = ['lunyun.ly',]
 ID = {
     'luoyun.ly': 'luobin.ly',
@@ -44,8 +46,19 @@ class ItemListView(ListView):
         return context
 
 
-class TaskListSearchView(ListView):
-    pass
+def taskListSearchView(request):
+    text = request.GET.get('search', '')
+    search_result_queryset = TaskList.objects.filter(
+        Q(itemId__itemName__contains=text) |
+        Q(itemId__applyUserId__username__contains=text) |
+        Q(itemId__reason__contains=text) |
+        Q(itemId__content__contains=text) |
+        Q(itemId__incidence__contains=text) |
+        Q(itemId__operation__contains=text) |
+        Q(itemId__rollback__contains=text) |
+        Q(itemId__comment__contains=text)
+    )
+    return render_to_response('workflow/search.html', context_instance=RequestContext(request, locals()))
 
 
 class ItemDetailView(DetailView):
@@ -67,7 +80,7 @@ def itemcreate(request):
             # return render_to_response('workflow/item_create_success.html', context_instance=RequestContext(request,locals()))
             return redirect(reverse_lazy("workflow:item-list"))
         else:
-            return render_to_response('workflow/item_create.html', context_instance=RequestContext(request,locals()))
+            return render_to_response('workflow/item_create.html', context_instance=RequestContext(request, locals()))
 
 # class ItemCreateView(CreateView):
 #     template_name = "workflow/item_create.html"

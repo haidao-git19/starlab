@@ -68,19 +68,6 @@
                                 <td class="uk-width-1-5"><a href="{{ item.itemId.get_absolute_url }}">{{ item.itemId.itemName }}</a></td>
                                 <td class="uk-width-1-5"><div class="uk-badge uk-text-bottom">{{ item.actorId.actorName }}</div></td>
                                 <td class="uk-width-2-5 uk-text-muted">{{ item.version|linebreaksbr }}</td>
-{#                                <td class="uk-text-center">#}
-{#                                    <div>#}
-{#                                        {% for item in users %}#}
-{#                                            {% if item.state == True %}#}
-{#                                                <div class="uk-badge uk-badge-success">{{ item.operateUserId }}</div>#}
-{#                                            {% elif item.state == False %}#}
-{#                                                <div class="uk-badge uk-badge-danger">{{ item.operateUserId }}</div>#}
-{#                                            {% else %}#}
-{#                                                <div class="uk-badge">{{ item.operateUserId }}</div>#}
-{#                                            {% endif %}#}
-{#                                        {% endfor %}#}
-{#                                    </div>#}
-{#                                </td>#}
                             </tr>
                         {% endfor %}
                         </tbody>

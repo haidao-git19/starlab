@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'home',
     'event',
     'workflow',
+    'workorder',
 )
 
 MIDDLEWARE_CLASSES = (

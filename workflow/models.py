@@ -53,8 +53,8 @@ class Item(models.Model):
         return u"{}({})".format(self.itemName, self.get_state_display())
 
     class Meta:
-        verbose_name = "工单"
-        verbose_name_plural = "工单"
+        verbose_name = "变更"
+        verbose_name_plural = "变更"
         ordering = ['-start_time', ]
 
     def get_absolute_url(self):
@@ -156,6 +156,10 @@ class CurrentActorUser(models.Model):
     type = models.IntegerField(choices=ACTORUSER_TYPE, default=0)
     operateUserId = models.ForeignKey('auth.User')
     state = models.NullBooleanField(default=None)
+
+    class Meta:
+        verbose_name = "临时步骤处理人"
+        verbose_name_plural = "临时步骤处理人"
 
     def __unicode__(self):
         return u"{}--{}({})决定是否通过:{}".format(self.task, self.operateUserId.username, self.get_type_display(), self.state)

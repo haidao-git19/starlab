@@ -136,20 +136,22 @@ class Category1(models.Model):
     class Meta:
         verbose_name = "大类"
         verbose_name_plural = "大类"
+        ordering = ['id']
 
 
 class Category2(models.Model):
     """
     工单管理参照变更管理,一共39小类
     """
-    category1 = models.ForeignKey("workorder.Category1")
+    category1 = models.ForeignKey("workorder.Category1", related_name='category')
     name = models.CharField(max_length=255)
 
     description = models.CharField(max_length=255, null=True, blank=True)
 
     def __unicode__(self):
-        return self.name
+        return "{} -- {}".format(self.category1.name, self.name)
 
     class Meta:
         verbose_name = "小类"
         verbose_name_plural = "小类"
+        ordering = ['category1', 'id']

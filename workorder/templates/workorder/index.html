@@ -1,4 +1,5 @@
 {% extends "workflow/index.html" %}
+{% load workorder_extras %}
 
 {% block description %}
     <div class="uk-block uk-contrast" style="background-color: #2B333D">
@@ -70,12 +71,13 @@
         <button type="button" class="uk-modal-close uk-close"></button>
         <h1>创建工单</h1>
 {#        <h2>创建一个工单并开启流程</h2>#}
+        <hr>
         <div class="uk-overflow-container">
-            <form method="get" action="/">{% csrf_token %}
-                {% get_order_form %}
-                <button type="submit" class="uk-button uk-button-success uk-float-right">创建</button>
-            </form>
+            {% get_order_form request %}
         </div>
+        <hr class="uk-margin-top">
+        <button id="postContent" class="uk-button uk-button-primary">创建</button>
+        <button type="reset" class="uk-modal-close uk-button">取消</button>
     </div>
 </div>
 {% endblock %}

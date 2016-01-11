@@ -1,10 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
 
-</body>
-</html>
+<form action="." method="post" class="uk-form uk-form-horizontal">{% csrf_token %}
+{#    {{ form.as_p }}#}
+
+	<!-- hidden name -->
+    {{ form.name }}
+    <!-- hidden owner -->
+    {{ form.owner }}
+    <!-- hidden state -->
+    {{ form.state }}
+
+	<!-- category2 -->
+	<div class="uk-form-row">
+      <label for="id_category2" class="uk-form-label uk-text-danger">
+          {{ form.category2.label }}
+      </label>
+      <div class="uk-form-controls">
+   			{{ form.category2 }}
+      </div>
+	</div>
+	<!-- purpose -->
+	<div class="uk-form-row">
+      <label for="id_purpose" class="uk-form-label uk-text-success">
+          {{ form.purpose.label }}
+      </label>
+      <div class="uk-form-controls">
+   			{{ form.purpose }}
+      </div>
+	</div>
+	<!-- comment -->
+	<div class="uk-form-row">
+      <label for="id_comment" class="uk-form-label uk-text-muted">
+          {{ form.comment.label }}
+      </label>
+      <div class="uk-form-controls">
+   			{{ form.comment }}
+      </div>
+	</div>
+	<!-- description -->
+	<div class="uk-form-row">
+      <label for="id_description" class="uk-form-label uk-text-muted">
+          {{ form.description.label }}
+      </label>
+      <div class="uk-form-controls">
+   			{{ form.description }}
+      </div>
+	</div>
+</form>

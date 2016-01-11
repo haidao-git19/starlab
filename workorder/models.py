@@ -80,13 +80,13 @@ class Order(models.Model):
     """
     工单
     """
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, verbose_name='工单编号')
     owner = models.ForeignKey("auth.User")
     startdatetime = models.DateTimeField(auto_now_add=True)
-    state = models.IntegerField(choices=STATE_CHOICES, default=0, verbose_name="工单状态")
-    category1 = models.ForeignKey("workorder.Category1", related_name='ordercategory1')
-    category2 = models.ForeignKey("workorder.Category2", related_name='ordercategory2')
-    rout = models.ForeignKey("workorder.Rout", related_name='orderrout')
+    state = models.IntegerField(choices=STATE_CHOICES, default=0, verbose_name="状态")
+    # category1 = models.ForeignKey("workorder.Category1", related_name='ordercategory1')
+    category2 = models.ForeignKey("workorder.Category2", related_name='ordercategory2', verbose_name='类型')
+    rout = models.ForeignKey("workorder.Rout",default=1, related_name='orderrout')
 
     enddatetime = models.DateTimeField(null=True, blank=True)
     purpose = models.CharField(max_length=5000, null=True, blank=True, verbose_name='目的') # 申请人填写申请目的

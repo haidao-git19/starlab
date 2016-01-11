@@ -106,5 +106,24 @@
 {% endblock %}
 
 {% block js %}
-    <script></script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#postContent").click(function(){
+        var form = $("form").serializeArray();
+            $.post('{% url 'workorder:order-create' %}', form, function(data, status){
+                if(data.status == 200){
+                    location.href='/workorder/category/';
+                    swal("恭喜:", data.info, "success");
+                }
+                else if(data.status==400){
+                    swal("提示:", data.info, "warning");
+                }
+                else {
+                    swal("警告:", '服务器内部错误', "danger");
+                }
+            })
+        });
+    });
+</script>
 {% endblock %}

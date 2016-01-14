@@ -113,8 +113,8 @@
         var form = $("form").serializeArray();
             $.post('{% url 'workorder:order-create' %}', form, function(data, status){
                 if(data.status == 200){
-                    location.href='/workorder/category/';
                     swal("恭喜:", data.info, "success");
+                    location.href='/workorder/category/';
                 }
                 else if(data.status==400){
                     swal("提示:", data.info, "warning");

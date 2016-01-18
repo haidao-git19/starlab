@@ -1,0 +1,228 @@
+{% extends 'workorder/index.html' %}
+{% load staticfiles %}
+
+{% block description %}
+    <div class="uk-block uk-contrast" style="background-color: #2B333D">
+        <div class="uk-container uk-container-center">
+
+            <h2 class="uk-text-bold">所有表单</h2>
+            <span class="uk-badge uk-badge-success">创建表单</span> >
+            <span class="uk-badge uk-badge-primary">开启审批(需要用户手动开启)</span> >
+            <span class="uk-badge uk-badge-primary">审批通过</span> >
+            <span class="uk-badge uk-badge-primary">工程师处理</span> >
+            <span class="uk-badge uk-badge-primary">处理结束</span> >
+            <span class="uk-badge uk-badge-primary">查收</span>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+<h4 class="tm-article-subtitle uk-text-bold">刚创建的表单</h4>
+<hr>
+<table id="table_1" class="display uk-margin-bottom">
+    <thead>
+        <tr>
+            <th>表单号</th>
+            <th>表单类型</th>
+            <th>描述</th>
+            <th>目的</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in ready_order_list %}
+            <tr>
+                <td class=""><i>{{ order.name }}</i></td>
+                <td><span class="uk-badge uk-badge-success uk-badge-notification">{{ order.category2 }}</span></td>
+                <td>{{ order.purpose|default:'空' }}</td>
+                <td>{{ order.description|default:'空' }}</td>
+                <td class="uk-text-center">
+                    <button class="uk-button uk-button-success uk-button-mini btn-start" pk="{{ order.id }}">开启审批</button>
+                </td>
+            </tr>
+        {% empty %}
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <th>表单号</th>
+            <th>表单类型</th>
+            <th>描述</th>
+            <th>目的</th>
+            <th>操作</th>
+        </tr>
+    </tfoot>
+</table>
+
+<h4 class="tm-article-subtitle uk-text-bold">进行中的表单</h4>
+<hr>
+<table id="table_2" class="display uk-margin-large-top">
+    <thead>
+        <tr>
+            <th>表单号</th>
+            <th>表单类型</th>
+            <th>描述</th>
+            <th>目的</th>
+            <th>状态</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in working_order_list %}
+            <tr>
+                <td class=""><i>{{ order.name }}</i></td>
+                <td><span class="uk-badge uk-badge-success uk-badge-notification">{{ order.category2 }}</span></td>
+                <td>{{ order.purpose|default:'空' }}</td>
+                <td>{{ order.description|default:'空' }}</td>
+                <td class="uk-text-center">
+                    {% if order.state == 1 %}
+                        <span class="uk-badge uk-badge-primary uk-badge-notification">审批中</span> |
+                        <button class="uk-button uk-button-mini" data-uk-toggle="{target: '.comment-class{{ forloop.counter }}',animation: 'uk-animation-slide-right, uk-animation-slide-right'}">查看过程</button>
+                        <div class="comment-class{{ forloop.counter }} uk-hidden uk-alert uk-alert-large">
+                        {% for task in task_list %}
+                            {% if task.order == order %}
+                            {{ task.version|linebreaksbr|default:'空' }}
+                            {% endif %}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if order.state == 2 %}
+                        <span class="uk-badge uk-badge-danger uk-badge-notification">实施中</span> |
+                        <button class="uk-button uk-button-mini" data-uk-toggle="{target: '.comment-class{{ forloop.counter }}',animation: 'uk-animation-slide-right, uk-animation-slide-right'}">查看过程</button>
+                        <div class="comment-class{{ forloop.counter }} uk-hidden uk-alert uk-alert-large">
+                        {% for task in task_list %}
+                            {% if task.order == order %}
+                            {{ task.version|linebreaksbr|default:'空' }}
+                            {% endif %}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <th>表单号</th>
+            <th>表单类型</th>
+            <th>描述</th>
+            <th>目的</th>
+            <th>状态</th>
+        </tr>
+    </tfoot>
+</table>
+
+<h4 class="tm-article-subtitle uk-text-bold">已关闭的表单</h4>
+<hr>
+<table id="table_3" class="display uk-margin-large-top">
+    <thead>
+        <tr>
+            <th>表单号</th>
+            <th>表单类型</th>
+            <th>描述</th>
+            <th>目的</th>
+            <th>状态</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in closed_order_list %}
+            <tr>
+                <td class=""><i>{{ order.name }}</i></td>
+                <td><span class="uk-badge uk-badge-success uk-badge-notification">{{ order.category2 }}</span></td>
+                <td>{{ order.purpose|default:'空' }}</td>
+                <td>{{ order.description|default:'空' }}</td>
+                <td class="uk-text-center">
+                    {{ order.comment }}
+                </td>
+            </tr>
+        {% empty %}
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <th>表单号</th>
+            <th>表单类型</th>
+            <th>描述</th>
+            <th>目的</th>
+            <th>状态</th>
+        </tr>
+    </tfoot>
+</table>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+    $(document).ready( function () {
+        $('#table_1').DataTable(
+        {
+ 			"order": [[ 0, "desc" ]],
+ 			"paging":   true,
+ 		    "info":     true,
+            "language": {
+                "url": "{% static "dataTables/json/Chinese.json" %}"
+            }
+ 		});
+        $('#table_2').DataTable(
+        {
+ 			"order": [[ 0, "desc" ]],
+ 			"paging":   true,
+ 		    "info":     true,
+            "language": {
+                "url": "{% static "dataTables/json/Chinese.json" %}"
+            }
+ 		});
+        $('#table_3').DataTable(
+        {
+ 			"order": [[ 0, "desc" ]],
+ 			"paging":   true,
+ 		    "info":     true,
+            "language": {
+                "url": "{% static "dataTables/json/Chinese.json" %}"
+            }
+ 		});
+    } );
+    $(".btn-start").click(function() {
+
+        var id = $(this).attr('pk');
+        swal({
+            title: "是否开启此表单审批流程?",
+            text: "会创建审批任务并告知默认负责人",
+            type: "info",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            showLoaderOnConfirm: true
+        }, function () {
+            $.ajax({
+                url:'{% url "workorder:create-task" %}',
+                type: 'post',
+                data:{
+                     id : id
+                },
+                dataType: 'json',
+                beforeSend: function(){
+                },
+                error: function(XHR){
+                    swal("出错了!", XHR.responseJSON.return, "error")
+                },
+                success: function(data){
+{#                    swal("审批开始,已通知相关审批人", data.return, "success");#}
+                    swal({
+                        title: "审批开始,已通知相关类别负责人!",
+                        text: data.return,
+                        type: "success",
+{#                        showCancelButton: true,#}
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "确定",
+                        closeOnConfirm: false
+                    },
+                    function(){
+                        location.reload();
+                    });
+                }
+            });/* end ajax */
+        });
+    })
+    </script>
+{% endblock %}

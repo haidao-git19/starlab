@@ -11,7 +11,7 @@ class OrderForm(forms.ModelForm):
     state = forms.IntegerField(widget=forms.HiddenInput())
     category2 = forms.ModelChoiceField(
         required = True,
-        label='类型:',
+        label='* 类型:',
         queryset=Category2.objects.all(),
         widget=forms.Select(
             attrs={
@@ -21,7 +21,7 @@ class OrderForm(forms.ModelForm):
     )
     purpose = forms.CharField(
         required=True,  # 前端的校验
-        label="目的:",
+        label="* 目的:",
         error_messages={'required': "必填项"},
         widget=forms.Textarea(
             attrs={

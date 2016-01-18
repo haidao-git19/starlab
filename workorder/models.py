@@ -45,7 +45,7 @@ class ActorUser(models.Model):
     type = models.IntegerField(choices=ACTORUSER_TYPE, default=0)
 
     def __unicode__(self):
-        return self.name
+        return str(self.name)
 
     class Meta:
         verbose_name = "步骤处理人"
@@ -74,7 +74,8 @@ class CurrentActorUser(models.Model):
 STATE_CHOICES = (
     (0, '待创建任务'),
     (1, '任务审批中'),
-    (2, '工单已关闭'),
+    (2, '任务实施中'),
+    (3, '工单已关闭'),
 )
 class Order(models.Model):
     """

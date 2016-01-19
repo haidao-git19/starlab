@@ -9,7 +9,13 @@ urlpatterns = [
     url(r'^create_order/$', login_required(OrderCreateView.as_view()), name='order-create'),
     url(r'^list_order_user/$', login_required(OrderOfUserListView.as_view()), name='order-list-user'),
     url(r'^list_order_engineer/$', login_required(OrderOfEngineerListView.as_view()), name='order-list-engineer'),
-    url(r'^createTask/$', createTask, name='create-task'),
+    url(r'^list_task/$', login_required(TaskListView.as_view()), name='list-task'),
+    url(r'^list_task_engineer/$', login_required(TaskListEngineerView.as_view()), name='list-task-engineer'),
 ]
 
 # ajax
+urlpatterns += [
+    url(r'^createTask/$', createTask, name='create-task'),
+    url(r'^dispense/$', dispense, name='dispense-task'),
+    url(r'^complete/$', complete, name='complete-task'),
+]

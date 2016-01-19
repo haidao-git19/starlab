@@ -44,15 +44,6 @@
         {% empty %}
         {% endfor %}
     </tbody>
-    <tfoot>
-        <tr>
-            <th>表单号</th>
-            <th>表单类型</th>
-            <th>描述</th>
-            <th>目的</th>
-            <th>操作</th>
-        </tr>
-    </tfoot>
 </table>
 
 <h4 class="tm-article-subtitle uk-text-bold">进行中的表单</h4>
@@ -64,7 +55,7 @@
             <th>表单类型</th>
             <th>描述</th>
             <th>目的</th>
-            <th>状态</th>
+            <th>状态 | 任务过程详情</th>
         </tr>
     </thead>
     <tbody>
@@ -77,40 +68,22 @@
                 <td class="uk-text-center">
                     {% if order.state == 1 %}
                         <span class="uk-badge uk-badge-primary uk-badge-notification">审批中</span> |
-                        <button class="uk-button uk-button-mini" data-uk-toggle="{target: '.comment-class{{ forloop.counter }}',animation: 'uk-animation-slide-right, uk-animation-slide-right'}">查看过程</button>
-                        <div class="comment-class{{ forloop.counter }} uk-hidden uk-alert uk-alert-large">
-                        {% for task in task_list %}
-                            {% if task.order == order %}
-                            {{ task.version|linebreaksbr|default:'空' }}
-                            {% endif %}
-                        {% endfor %}
-                        </div>
-                    {% endif %}
-                    {% if order.state == 2 %}
+                    {% elif order.state == 2 %}
                         <span class="uk-badge uk-badge-danger uk-badge-notification">实施中</span> |
-                        <button class="uk-button uk-button-mini" data-uk-toggle="{target: '.comment-class{{ forloop.counter }}',animation: 'uk-animation-slide-right, uk-animation-slide-right'}">查看过程</button>
-                        <div class="comment-class{{ forloop.counter }} uk-hidden uk-alert uk-alert-large">
-                        {% for task in task_list %}
-                            {% if task.order == order %}
-                            {{ task.version|linebreaksbr|default:'空' }}
-                            {% endif %}
-                        {% endfor %}
-                        </div>
                     {% endif %}
+                    <button class="uk-button uk-button-mini" data-uk-toggle="{target: '.comment-class{{ forloop.counter }}',animation: 'uk-animation-slide-right, uk-animation-slide-right'}">详情</button>
+                    <div class="comment-class{{ forloop.counter }} uk-hidden uk-alert uk-alert-large">
+                    {% for task in task_list %}
+                        {% if task.order == order %}
+                        {{ task.version|linebreaksbr|default:'空' }}
+                        {% endif %}
+                    {% endfor %}
+                    </div>
                 </td>
             </tr>
         {% empty %}
         {% endfor %}
     </tbody>
-    <tfoot>
-        <tr>
-            <th>表单号</th>
-            <th>表单类型</th>
-            <th>描述</th>
-            <th>目的</th>
-            <th>状态</th>
-        </tr>
-    </tfoot>
 </table>
 
 <h4 class="tm-article-subtitle uk-text-bold">已关闭的表单</h4>
@@ -139,15 +112,6 @@
         {% empty %}
         {% endfor %}
     </tbody>
-    <tfoot>
-        <tr>
-            <th>表单号</th>
-            <th>表单类型</th>
-            <th>描述</th>
-            <th>目的</th>
-            <th>状态</th>
-        </tr>
-    </tfoot>
 </table>
 
 {% endblock %}

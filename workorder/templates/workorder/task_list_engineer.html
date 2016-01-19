@@ -1,0 +1,95 @@
+{% extends 'workorder/index.html' %}
+{% load staticfiles %}
+
+{% block description %}
+    <div class="uk-block uk-contrast" style="background-color: #2B333D">
+        <div class="uk-container uk-container-center">
+
+            <h2 class="uk-text-bold">工程师处理</h2>
+            <span class="uk-badge uk-badge-primary">创建表单</span> >
+            <span class="uk-badge uk-badge-primary">开启审批(需要用户手动开启)</span> >
+            <span class="uk-badge uk-badge-primary">审批/分发</span> >
+            <span class="uk-badge uk-badge-success">工程师处理</span> >
+            <span class="uk-badge uk-badge-primary">处理结束</span> >
+            <span class="uk-badge uk-badge-primary">查收</span>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+<h4 class="tm-article-subtitle uk-text-bold">单独分给我的工作</h4>
+    {% for task in task_list %}
+        <div class="uk-panel uk-panel-box uk-panel-box-secondary uk-text-center-small">
+            <div class="uk-panel-badge uk-badge uk-badge">创建于{{ task.added|timesince }}前</div>
+            No.{{ forloop.counter }}
+            <br>
+            任务编号:{{ task.order }}[{{ task.order.category2.category1.group }}]
+            <br>
+            申请原因:{{ task.order.purpose }}
+            <br>
+            过程:
+            <br>
+            <div class="uk-text-muted"><i>{{ task.version|linebreaksbr }}</i></div>
+            {% if task.order.state == 3 %}
+                <button class="uk-button uk-button-success uk-float-right" disabled>已完成</button>
+            {% else %}
+                <button class="uk-button uk-button-success uk-float-right btn-confirm{{ forloop.counter }}" id={{ task.id }}>标记为完成</button>
+            {% endif %}
+        </div>
+        <br>
+    {% empty %}
+        <div>无</div>
+    {% endfor %}
+<h4 class="tm-article-subtitle uk-text-bold">其他组内任务</h4>
+    {% for task in task_list12331 %}
+        <div class="uk-panel uk-panel-box uk-panel-box-secondary uk-text-center-small">
+            <div class="uk-panel-badge uk-badge uk-badge">创建于{{ task.added|timesince }}前</div>
+            No.{{ forloop.counter }}
+            <br>
+            任务编号:{{ task.order }}[{{ task.order.category2.category1.group }}]
+            <br>
+            申请原因:{{ task.order.purpose }}
+            <br>
+            过程:
+            <br>
+            <div class="uk-text-muted"><i>{{ task.version|linebreaksbr }}</i></div>
+{#            <button class="uk-button uk-button-success uk-float-right btn-confirm{{ forloop.counter }}" id={{ task.id }}>标记为完成</button>#}
+        </div>
+        <br>
+    {% empty %}
+        <div>无</div>
+    {% endfor %}
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+{% for task in task_list %}
+    $(".btn-confirm{{ forloop.counter }}").click(function() {
+
+        var id = $(this).attr('id');
+        UIkit.modal.prompt('请输入处理结果:', '', function(comment){
+            $.ajax({
+                url:'{% url "workorder:complete-task" %}',
+                type: 'post',
+                data:{
+                    taskid: id,
+                    comment: comment
+                },
+                dataType: 'json',
+                beforeSend: function(){
+                },
+                error: function(XHR){
+                    swal("出错了!", XHR.responseJSON.return, "error");
+                    $(this).isDisabled();
+                },
+                success: function(data){
+                    swal("Good work!", data.return, "success");
+                    location.reload();
+                }
+            });/* end ajax */
+        });
+    });
+{% endfor %}
+</script>
+{% endblock %}

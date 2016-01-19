@@ -29,6 +29,8 @@
     <ul class="uk-subnav uk-subnav-pill uk-float-right">
         <li class="{% if current_page == "workorder-category-list" %}uk-active{% endif %}"><a href="{% url "workorder:category-list" %}">首页</a></li>
         <li class="{% if current_page == "workorder-order-list-user" %}uk-active{% endif %}"><a href="{% url "workorder:order-list-user" %}">我的表单</a></li>
+        <li class="{% if current_page == "workorder-task-list-engineer" %}uk-active{% endif %}"><a href="{% url "workorder:list-task-engineer" %}">我的工作</a></li>
+        <li class="{% if current_page == "workorder-task-list" %}uk-active{% endif %}"><a href="{% url "workorder:list-task" %}">我的审批</a></li>
         <li class=""><a>表单统计</a></li>
     </ul>
 </div>
@@ -52,7 +54,7 @@
                 <h3 class="uk-panel-title">我是专业工程师</h3>
                 请分配我擅长的工作给我,保证又快又好.
                 <br>
-                <button class="uk-button uk-button-success uk-margin-large-top">查看分配给我的工作</button>
+                <a href="{% url "workorder:list-task-engineer" %}" class="uk-button uk-button-success uk-margin-large-top">查看分配给我的工作</a>
             </div>
         </div>
         <div class="uk-width-medium-1-3">
@@ -61,7 +63,7 @@
                 <h3 class="uk-panel-title">我是审批主管</h3>
                 我将审批表单有效性,或者直接指定谁处理.
                 <br>
-                <button class="uk-button uk-button-danger uk-margin-large-top">查看待审批表单并审批</button>
+                <a href="{% url "workorder:list-task" %}" class="uk-button uk-button-danger uk-margin-large-top">查看待审批表单并审批</a>
             </div>
         </div>
     </div>

@@ -1,0 +1,84 @@
+{% extends 'workorder/index.html' %}
+{% load staticfiles %}
+
+{% block description %}
+    <div class="uk-block uk-contrast" style="background-color: #2B333D">
+        <div class="uk-container uk-container-center">
+
+            <h2 class="uk-text-bold">任务审批/分发</h2>
+            <span class="uk-badge uk-badge-primary">创建表单</span> >
+            <span class="uk-badge uk-badge-primary">开启审批(需要用户手动开启)</span> >
+            <span class="uk-badge uk-badge-success">审批/分发</span> >
+            <span class="uk-badge uk-badge-primary">工程师处理</span> >
+            <span class="uk-badge uk-badge-primary">处理结束</span> >
+            <span class="uk-badge uk-badge-primary">查收</span>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+<h4 class="tm-article-subtitle uk-text-bold">待分发任务列表</h4>
+    {% for task in task_list %}
+        <div class="uk-panel uk-panel-box uk-panel-box-primary uk-text-center-small">
+            <div class="uk-panel-badge uk-badge uk-badge">创建于{{ task.added|timesince }}前</div>
+            No.{{ forloop.counter }}
+            <br>
+            任务编号:{{ task.order }}[{{ task.order.category2.category1.group }}]
+            <br>
+            申请原因:{{ task.order.purpose }}
+            <br>
+            过程:
+            <br>
+            <div class="uk-text-muted uk-margin-bottom"><i>{{ task.version|linebreaksbr }}</i></div>
+            {% if task.state == 2 %}
+                <button class="uk-button uk-button-success" id={{ task.id }} data-uk-modal="{target:'#dispense{{ task.id }}',bgclose:false}">重新分发</button>
+            {% elif task.state == 3 %}
+                <button class="uk-button uk-button-success" disabled>任务已结束</button>
+            {% else %}
+                <button class="uk-button uk-button-success" id={{ task.id }} data-uk-modal="{target:'#dispense{{ task.id }}',bgclose:false}">分发</button>
+            {% endif %}
+        </div>
+        <br>
+        <!-- uk-model -->
+        <div id="dispense{{ task.id }}" class="uk-modal">
+            <div class="uk-modal-dialog">
+                <div class="uk-modal-header">[{{ task.order.category2.category1.group }}]组,请选择一位工程师</div>
+                <form id="form{{ forloop.counter }}" action="." method="post" class="uk-form uk-form-horizontal">{% csrf_token %}
+                    {{ form.users }}
+                    <input type="hidden" name="task_id" value="{{ task.id }}" />
+                </form>
+                <div class="uk-modal-footer uk-text-muted">同组的工程师均对此任务可见,分发操作会通知上面所选的工程师</div>
+                <button id="postContent{{ forloop.counter }}" class="uk-button uk-button-primary postContent{{ forloop.counter }}">发任务</button>
+                <button type="reset" class="uk-modal-close uk-button">取消</button>
+            </div>
+        </div>
+    {% empty %}
+        <div>无</div>
+    {% endfor %}
+{% endblock %}
+
+{% block js %}
+    {% for task in task_list %}
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $(".postContent{{ forloop.counter }}").click(function(){
+                var form = $("#form{{ forloop.counter }}").serializeArray();
+                    $.post('{% url 'workorder:dispense-task' %}', form, function(data, status){
+                        if(data.status == 200){
+                            swal("完成", "任务已经分配给"+data.user_name, "success");
+        {#                    location.href='{% url "workorder:order-list-user" %}';#}
+                            location.reload();
+                        }
+                        else if(data.status==400){
+                            swal("提示", data.error, "warning");
+                        }
+                        else {
+                            swal("警告", '服务器内部错误', "danger");
+                        }
+                    })
+                });
+            });
+        </script>
+    {% endfor %}
+{% endblock %}

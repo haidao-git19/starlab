@@ -100,8 +100,15 @@ class Order(models.Model):
     class Meta:
         verbose_name = "工单"
         verbose_name_plural = "工单"
+        ordering = ['-state']
 
 
+TASK_STATE_CHOICES = (
+    (0, '新创建任务'),
+    (1, '任务审批中'),
+    (2, '任务实施中'),
+    (3, '任务已结束'),
+)
 class Task(models.Model):
     """
     工单的流转是以任务为主线的
@@ -110,7 +117,9 @@ class Task(models.Model):
     order = models.ForeignKey('workorder.Order', related_name='taskorder')
     actor = models.ForeignKey("workorder.Actor", related_name='taskactor')
     operator = models.ForeignKey('auth.User', null=True, blank=True, related_name='taskoperator')
-    version = models.CharField(max_length=255) # 记录流转过程
+    version = models.CharField(max_length=5000) # 记录流转过程
+    state = models.IntegerField(choices=TASK_STATE_CHOICES, default=0, verbose_name="状态")
+    added = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
         return self.name
@@ -118,6 +127,7 @@ class Task(models.Model):
     class Meta:
         verbose_name = "任务"
         verbose_name_plural = "任务"
+        ordering = ['state']
 
 
 class Category1(models.Model):

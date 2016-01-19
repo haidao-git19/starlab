@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 import time
+from django import forms
 # Create your views here.
 
 
@@ -84,13 +85,52 @@ class OrderOfUserListView(ListView):
 
 
 class OrderOfEngineerListView(ListView):
-    models = Order
+    model = Order
 
     def get_context_data(self, **kwargs):
         context = super(OrderOfEngineerListView, self).get_context_data(**kwargs)
         context['current_page'] = "workorder-order-list-engineer"
         return context
 
+
+class TaskListView(ListView):
+    model = Task
+    template_name = 'workorder/task_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(TaskListView, self).get_context_data(**kwargs)
+        context['current_page'] = "workorder-task-list"
+        context['task_list'] = Task.objects.filter(order__category2__category1__manager=self.request.user)
+        category1_objects = Category1.objects.filter(manager=self.request.user)
+        print category1_objects
+        group_name = []
+        for category1_object in category1_objects:
+            group_name.append(category1_object.group.name)
+        print group_name
+        class GroupUserForm(forms.Form):
+            users = forms.ModelChoiceField(
+                queryset=User.objects.filter(groups__name__in=group_name).all().distinct(),
+                # queryset=User.objects.filter(groups__name__in=['PE']).all(),
+                widget=forms.Select(
+                    attrs={
+                        'class': 'uk-width-1-1',
+                    }
+                ),
+            )
+        form = GroupUserForm()
+        context['form'] = form
+        return context
+
+
+class TaskListEngineerView(ListView):
+    model = Task
+    template_name = 'workorder/task_list_engineer.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(TaskListEngineerView, self).get_context_data(**kwargs)
+        context['current_page'] = "workorder-task-list-engineer"
+        context['task_list'] = Task.objects.filter(operator=self.request.user)
+        return context
 
 @csrf_exempt
 def createTask(request):
@@ -109,7 +149,8 @@ def createTask(request):
                                                               request.user.first_name),
                                    order=order_object,
                                    actor=actor,
-                                   version='[{}]{}{}发起审批\n'.format(time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                                   state=1,
+                                   version='[{}]{}{}发起申请\n'.format(time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
                                                                request.user.last_name,
                                                                request.user.first_name)
                                    )
@@ -126,3 +167,63 @@ def createTask(request):
             'return': e
         }
         return JsonResponse(data, status=400)
+
+@csrf_exempt
+def dispense(request):
+    '''
+    任务分发,按组
+    :param request:
+    :return:
+    '''
+    id = request.POST.get('users')
+    task_id = request.POST.get('task_id')
+    task = get_object_or_404(Task, id=task_id)
+    order = task.order
+    order.state = 2
+    order.save()
+    if id:
+        user = get_object_or_404(User, id=id)
+        task.version += "[{}]由{}{}分发给{}{}\n".format(time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                                                    request.user.last_name,
+                                                    request.user.first_name,
+                                                    user.last_name,
+                                                    user.first_name)
+        task.operator = user
+        task.state = 2 # 实施中
+        task.save()
+        data = {
+            'user_name': "{}{}".format(user.last_name, user.first_name),
+            'status': 200,
+        }
+    else:
+        data = {
+            'status': 400,
+            'error': '不能为空',
+        }
+    return JsonResponse(data, status=200)
+
+@csrf_exempt
+def complete(request):
+    taskid = request.POST.get('taskid')
+    comment = request.POST.get('comment')
+    if comment:
+        task_object = get_object_or_404(Task, id=taskid)
+        task_object.version += "[{}]由{}{}完成并备注:{}\n".format(time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                                         request.user.last_name,
+                                         request.user.first_name,
+                                         comment)
+        task_object.state = 3
+        task_object.save()
+        order_object = task_object.order
+        order_object.comment = comment
+        order_object.state = 3
+        order_object.save()
+        data = {
+            'return': '任务结束,ID:{}'.format(taskid)
+        }
+        return JsonResponse(data, status=200)
+    else:
+        data = {
+            'return': '处理结果不能为空哦'
+        }
+    return JsonResponse(data, status=400)

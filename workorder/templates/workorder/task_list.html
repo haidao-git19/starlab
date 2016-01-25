@@ -7,7 +7,7 @@
 
             <h2 class="uk-text-bold">任务审批/分发</h2>
             <span class="uk-badge uk-badge-primary">创建表单</span> >
-            <span class="uk-badge uk-badge-primary">开启审批(需要用户手动开启)</span> >
+            <span class="uk-badge uk-badge-primary">开启审批</span> >
             <span class="uk-badge uk-badge-success">审批/分发</span> >
             <span class="uk-badge uk-badge-primary">工程师处理</span> >
             <span class="uk-badge uk-badge-primary">处理结束</span> >
@@ -25,6 +25,8 @@
             No.{{ forloop.counter }}
             <br>
             任务编号:{{ task.order }}[{{ task.order.category2.category1.group }}]
+            <br>
+            所属类别:{{ task.order.category2 }}
             <br>
             申请原因:{{ task.order.purpose }}
             <br>

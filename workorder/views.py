@@ -224,6 +224,6 @@ def complete(request):
         return JsonResponse(data, status=200)
     else:
         data = {
-            'return': '处理结果不能为空哦'
+            'return': '处理结果不能为空'
         }
     return JsonResponse(data, status=400)

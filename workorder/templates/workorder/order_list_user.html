@@ -6,8 +6,8 @@
         <div class="uk-container uk-container-center">
 
             <h2 class="uk-text-bold">所有表单</h2>
-            <span class="uk-badge uk-badge-success">创建表单</span> >
-            <span class="uk-badge uk-badge-primary">开启审批(需要用户手动开启)</span> >
+            <span class="uk-badge uk-badge-primary">创建表单</span> >
+            <span class="uk-badge uk-badge-success">开启审批</span> >
             <span class="uk-badge uk-badge-primary">审批通过</span> >
             <span class="uk-badge uk-badge-primary">工程师处理</span> >
             <span class="uk-badge uk-badge-primary">处理结束</span> >
@@ -34,7 +34,7 @@
         {% for order in ready_order_list %}
             <tr>
                 <td class=""><i>{{ order.name }}</i></td>
-                <td><span class="uk-badge uk-badge-success uk-badge-notification">{{ order.category2 }}</span></td>
+                <td><span class="uk-badge uk-badge-primary uk-badge-notification">{{ order.category2 }}</span></td>
                 <td>{{ order.purpose|default:'空' }}</td>
                 <td>{{ order.description|default:'空' }}</td>
                 <td class="uk-text-center">
@@ -62,7 +62,7 @@
         {% for order in working_order_list %}
             <tr>
                 <td class=""><i>{{ order.name }}</i></td>
-                <td><span class="uk-badge uk-badge-success uk-badge-notification">{{ order.category2 }}</span></td>
+                <td><span class="uk-badge uk-badge-primary uk-badge-notification">{{ order.category2 }}</span></td>
                 <td>{{ order.purpose|default:'空' }}</td>
                 <td>{{ order.description|default:'空' }}</td>
                 <td class="uk-text-center">
@@ -95,14 +95,14 @@
             <th>表单类型</th>
             <th>描述</th>
             <th>目的</th>
-            <th>状态</th>
+            <th>工程师备注</th>
         </tr>
     </thead>
     <tbody>
         {% for order in closed_order_list %}
             <tr>
                 <td class=""><i>{{ order.name }}</i></td>
-                <td><span class="uk-badge uk-badge-success uk-badge-notification">{{ order.category2 }}</span></td>
+                <td><span class="uk-badge uk-badge-primary uk-badge-notification">{{ order.category2 }}</span></td>
                 <td>{{ order.purpose|default:'空' }}</td>
                 <td>{{ order.description|default:'空' }}</td>
                 <td class="uk-text-center">

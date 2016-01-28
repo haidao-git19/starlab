@@ -62,9 +62,10 @@ class CurrentActorUser(models.Model):
     name = models.ForeignKey("auth.User", related_name='currentactorusername')
     actor = models.ForeignKey("workorder.Actor", related_name='currentactoruseractor')
     type = models.IntegerField(choices=ACTORUSER_TYPE, default=0)
+    state = models.NullBooleanField(default=None)
 
     def __unicode__(self):
-        return self.name
+        return str(self.name)
 
     class Meta:
         verbose_name = "当前步骤处理人"
@@ -73,9 +74,10 @@ class CurrentActorUser(models.Model):
 
 STATE_CHOICES = (
     (0, '待创建任务'),
-    (1, '任务审批中'),
-    (2, '任务实施中'),
-    (3, '工单已关闭'),
+    (1, '工单审批中'),
+    (2, '工单分发中'),
+    (3, '工单实施中'),
+    (4, '工单已关闭'),
 )
 class Order(models.Model):
     """
@@ -106,8 +108,9 @@ class Order(models.Model):
 TASK_STATE_CHOICES = (
     (0, '新创建任务'),
     (1, '任务审批中'),
-    (2, '任务实施中'),
-    (3, '任务已结束'),
+    (2, '任务分发中'),
+    (3, '任务实施中'),
+    (4, '任务已结束'),
 )
 class Task(models.Model):
     """

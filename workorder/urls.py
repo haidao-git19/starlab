@@ -18,4 +18,5 @@ urlpatterns += [
     url(r'^createTask/$', createTask, name='create-task'),
     url(r'^dispense/$', dispense, name='dispense-task'),
     url(r'^complete/$', complete, name='complete-task'),
+    url(r'^agree/$', agree, name='agree-task'),
 ]

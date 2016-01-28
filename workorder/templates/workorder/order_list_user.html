@@ -69,6 +69,8 @@
                     {% if order.state == 1 %}
                         <span class="uk-badge uk-badge-primary uk-badge-notification">审批中</span> |
                     {% elif order.state == 2 %}
+                        <span class="uk-badge uk-badge-danger uk-badge-notification">分发中</span> |
+                    {% elif order.state == 3 %}
                         <span class="uk-badge uk-badge-danger uk-badge-notification">实施中</span> |
                     {% endif %}
                     <button class="uk-button uk-button-mini" data-uk-toggle="{target: '.comment-class{{ forloop.counter }}',animation: 'uk-animation-slide-right, uk-animation-slide-right'}">详情</button>

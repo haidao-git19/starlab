@@ -33,7 +33,7 @@
             过程:
             <br>
             <div class="uk-text-muted"><i>{{ task.version|linebreaksbr }}</i></div>
-            {% if task.order.state == 3 %}
+            {% if task.order.state == 4 %}
                 <button class="uk-button uk-button-success uk-float-right" disabled>已完成</button>
             {% else %}
                 <button class="uk-button uk-button-success uk-float-right btn-confirm{{ forloop.counter }}" id={{ task.id }}>标记为完成</button>
@@ -41,7 +41,7 @@
         </div>
         <br>
     {% empty %}
-        <div>无</div>
+        <p style="" class="uk-alert uk-alert-success">暂无</p>
     {% endfor %}
 <h4 class="tm-article-subtitle uk-text-bold">其他组内任务</h4>
     {% for task in task_list12331 %}
@@ -62,7 +62,7 @@
         </div>
         <br>
     {% empty %}
-        <div>无</div>
+        <p style="" class="uk-alert uk-alert-success">暂无</p>
     {% endfor %}
 {% endblock %}
 

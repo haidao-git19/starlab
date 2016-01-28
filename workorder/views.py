@@ -78,8 +78,8 @@ class OrderOfUserListView(ListView):
         context = super(OrderOfUserListView, self).get_context_data(**kwargs)
         context['current_page'] = "workorder-order-list-user"
         context['ready_order_list'] = Order.objects.filter(owner=self.request.user).filter(state=0)
-        context['working_order_list'] = Order.objects.filter(owner=self.request.user).filter(Q(state=1) | Q(state=2))
-        context['closed_order_list'] = Order.objects.filter(owner=self.request.user).filter(state=3)
+        context['working_order_list'] = Order.objects.filter(owner=self.request.user).filter(Q(state=1) | Q(state=2) | Q(state=3))
+        context['closed_order_list'] = Order.objects.filter(owner=self.request.user).filter(state=4)
         context['task_list'] = Task.objects.all()
         return context
 
@@ -100,7 +100,10 @@ class TaskListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(TaskListView, self).get_context_data(**kwargs)
         context['current_page'] = "workorder-task-list"
+        # 所有任务列表/在前端区分任务状态
         context['task_list'] = Task.objects.filter(order__category2__category1__manager=self.request.user)
+        # 和登录人相关的待审批任务
+        context['current_actor_users'] = CurrentActorUser.objects.filter(name=self.request.user)
         category1_objects = Category1.objects.filter(manager=self.request.user)
         print category1_objects
         group_name = []
@@ -141,23 +144,35 @@ def createTask(request):
     '''
     order_id = request.POST.get('id')
     try:
+        # 找到订单
         order_object = get_object_or_404(Order, id=order_id)
-        rout = get_object_or_404(Rout, id=order_object.rout.id)
-        actor = get_object_or_404(Actor, rout=rout, sort='0')
+        # 找到订单对应流程模板的第一步流程
+        rout_object = get_object_or_404(Rout, id=order_object.rout.id)
+        actor_object = get_object_or_404(Actor, rout=rout_object, sort='1')
+
+        # 创建工单对应任务
         task = Task.objects.create(name='任务:{}-({}{})'.format(order_object.purpose,
                                                               request.user.last_name,
                                                               request.user.first_name),
                                    order=order_object,
-                                   actor=actor,
+                                   actor=actor_object,
                                    state=1,
                                    version='[{}]{}{}发起申请\n'.format(time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
                                                                request.user.last_name,
                                                                request.user.first_name)
                                    )
-        order_object.state = 1
+        # 创建任务对应审批
+        # 找到流程一对应的固定审批人
+        actoruser_objects = ActorUser.objects.filter(actor=actor_object)
+        # 将所有固定审批人复制一套去临时审批人用来支持加签功能
+        queryset_list = []
+        for i in actoruser_objects:
+            queryset_list.append(CurrentActorUser(task=task, name=i.name, actor=i.actor))
+        CurrentActorUser.objects.bulk_create(queryset_list)
+        order_object.state = 1 # 审批中
         order_object.save()
         data = {
-            'return': '任务已创建并通知类别主管({}{}),任务ID:{}'.format(order_object.category2.category1.manager.last_name,
+            'return': '任务已创建并通知审批主管({}{}),任务ID:{}'.format(order_object.category2.category1.manager.last_name,
                                                           order_object.category2.category1.manager.first_name,
                                                           task.id)
         }
@@ -167,6 +182,33 @@ def createTask(request):
             'return': e
         }
         return JsonResponse(data, status=400)
+
+@csrf_exempt
+def agree(request):
+    taskid = request.POST.get('taskid')
+    comment = request.POST.get('comment')
+    task_object = get_object_or_404(Task, id=taskid)
+    task_object.state = 2 # 审批结束
+    task_object.version += "[{}]{}{}审批通过并备注:{}\n".format(time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                                         request.user.last_name,
+                                         request.user.first_name,
+                                         comment)
+    order_object = task_object.order
+    order_object.comment = comment
+    order_object.state = 2
+    order_object.save()
+    data = {
+        'return': '成功:已通知主管分发工单,ID:{}'.format(order_object.name)
+    }
+    return JsonResponse(data, status=200)
+
+@csrf_exempt
+def disagree(request):
+    pass
+
+@csrf_exempt
+def addsign(request):
+    pass
 
 @csrf_exempt
 def dispense(request):
@@ -179,7 +221,7 @@ def dispense(request):
     task_id = request.POST.get('task_id')
     task = get_object_or_404(Task, id=task_id)
     order = task.order
-    order.state = 2
+    order.state = 3
     order.save()
     if id:
         user = get_object_or_404(User, id=id)
@@ -189,7 +231,7 @@ def dispense(request):
                                                     user.last_name,
                                                     user.first_name)
         task.operator = user
-        task.state = 2 # 实施中
+        task.state = 3 # 实施中
         task.save()
         data = {
             'user_name': "{}{}".format(user.last_name, user.first_name),
@@ -212,11 +254,11 @@ def complete(request):
                                          request.user.last_name,
                                          request.user.first_name,
                                          comment)
-        task_object.state = 3
+        task_object.state = 4 # 任务结束
         task_object.save()
         order_object = task_object.order
         order_object.comment = comment
-        order_object.state = 3
+        order_object.state = 4
         order_object.save()
         data = {
             'return': '任务结束,ID:{}'.format(taskid)

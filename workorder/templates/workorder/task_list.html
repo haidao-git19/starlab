@@ -33,9 +33,9 @@
             过程:
             <br>
             <div class="uk-text-muted uk-margin-bottom"><i>{{ task.version|linebreaksbr }}</i></div>
-            {% if task.state == 2 %}
+            {% if task.state == 3 %}
                 <button class="uk-button uk-button-success" id={{ task.id }} data-uk-modal="{target:'#dispense{{ task.id }}',bgclose:false}">重新分发</button>
-            {% elif task.state == 3 %}
+            {% elif task.state == 4 %}
                 <button class="uk-button uk-button-success" disabled>任务已结束</button>
             {% else %}
                 <button class="uk-button uk-button-success" id={{ task.id }} data-uk-modal="{target:'#dispense{{ task.id }}',bgclose:false}">分发</button>
@@ -56,31 +56,92 @@
             </div>
         </div>
     {% empty %}
-        <div>无</div>
+        <p style="" class="uk-alert uk-alert-success">暂无</p>
+    {% endfor %}
+<h4 class="tm-article-subtitle uk-text-bold">待审批任务列表</h4>
+    {% for user in current_actor_users %}
+        <div class="uk-panel uk-panel-box uk-panel-box-warning uk-text-center-small">
+            No.{{ forloop.counter }}
+            <br>
+            {{ user.task }}
+            <br>
+            所属订单:{{ user.task.order.name }}[{{ user.task.order.category2.category1.group }}]
+            <br>
+            所属类别:{{ user.task.order.category2 }}
+            <br>
+            申请原因:{{ user.task.order.purpose }}
+            <br>
+            过程:
+            <br>
+            <div class="uk-text-muted uk-margin-bottom"><i>{{ task.version|linebreaksbr }}</i></div>
+            <button class="uk-button uk-button-success btn-agree{{ forloop.counter }}" id={{ user.task.id }}>同意</button>
+{#            <button class="uk-button uk-button-success" id={{ task.id }}>拒绝</button>#}
+        </div>
+        <br>
+    {% empty %}
+        <p style="" class="uk-alert uk-alert-success">暂无</p>
     {% endfor %}
 {% endblock %}
 
 {% block js %}
+<script type="text/javascript">
     {% for task in task_list %}
-        <script type="text/javascript">
-            $(document).ready(function(){
-                $(".postContent{{ forloop.counter }}").click(function(){
-                var form = $("#form{{ forloop.counter }}").serializeArray();
-                    $.post('{% url 'workorder:dispense-task' %}', form, function(data, status){
-                        if(data.status == 200){
-                            swal("完成", "任务已经分配给"+data.user_name, "success");
-        {#                    location.href='{% url "workorder:order-list-user" %}';#}
-                            location.reload();
-                        }
-                        else if(data.status==400){
-                            swal("提示", data.error, "warning");
-                        }
-                        else {
-                            swal("警告", '服务器内部错误', "danger");
-                        }
-                    })
-                });
+        $(document).ready(function(){
+            $(".postContent{{ forloop.counter }}").click(function(){
+            var form = $("#form{{ forloop.counter }}").serializeArray();
+                $.post('{% url 'workorder:dispense-task' %}', form, function(data, status){
+                    if(data.status == 200){
+                        swal("完成", "任务已经分配给"+data.user_name, "success");
+    {#                    location.href='{% url "workorder:order-list-user" %}';#}
+                        location.reload();
+                    }
+                    else if(data.status==400){
+                        swal("提示", data.error, "warning");
+                    }
+                    else {
+                        swal("警告", '服务器内部错误', "danger");
+                    }
+                })
             });
-        </script>
+        });
     {% endfor %}
+
+    {% for user in current_actor_users %}
+        $(".btn-agree{{ forloop.counter }}").click(function() {
+
+            var id = $(this).attr('id');
+            UIkit.modal.prompt('备注(可为空):', '', function(comment){
+                $.ajax({
+                    url:'{% url "workorder:agree-task" %}',
+                    type: 'post',
+                    data:{
+                        taskid: id,
+                        comment: comment
+                    },
+                    dataType: 'json',
+                    beforeSend: function(){
+                    },
+                    error: function(XHR){
+                        swal("出错了!", XHR.responseJSON.return, "error");
+                        $(this).isDisabled();
+                    },
+                    success: function(data){
+                        swal({
+                            title: "成功!",
+                            text: data.return,
+                            type: "success",
+    {#                        showCancelButton: true,#}
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "确定",
+                            closeOnConfirm: false
+                        },
+                        function(){
+                            location.reload();
+                        });
+                    }
+                });/* end ajax */
+            });
+        });
+    {% endfor %}
+</script>
 {% endblock %}

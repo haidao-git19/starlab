@@ -29,7 +29,7 @@
     <ul class="uk-subnav uk-subnav-pill uk-float-right">
         <li class="{% if current_page == "workorder-category-list" %}uk-active{% endif %}"><a href="{% url "workorder:category-list" %}">首页</a></li>
         <li class="{% if current_page == "workorder-order-list-user" %}uk-active{% endif %}"><a href="{% url "workorder:order-list-user" %}">我的表单</a></li>
-        <li class="{% if current_page == "workorder-task-list" %}uk-active{% endif %}"><a href="{% url "workorder:list-task" %}">我的审批</a></li>
+        <li class="{% if current_page == "workorder-task-list" %}uk-active{% endif %}"><a href="{% url "workorder:list-task" %}">审批 | 分发</a></li>
         <li class="{% if current_page == "workorder-task-list-engineer" %}uk-active{% endif %}"><a href="{% url "workorder:list-task-engineer" %}">我的工作</a></li>
         <li class=""><a>表单统计</a></li>
     </ul>

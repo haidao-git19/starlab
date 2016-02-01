@@ -13,9 +13,9 @@
                         <li class="{% if "event" in current_page %}uk-active{% endif %}"><a href="{% url "event:sub-project" %}">事件监控</a></li>
                     </ul>
                     <div class="uk-navbar-flip">
-                        <ul class="uk-navbar-nav">
-                            <li><a href="#notice" data-uk-smooth-scroll>当前未关闭的问题 <span class="uk-badge uk-badge-primary">{{ open_list|length }}</span></a></li>
-                        </ul>
+{#                        <ul class="uk-navbar-nav">#}
+{#                            <li><a href="#notice" data-uk-smooth-scroll>当前未关闭的问题 <span class="uk-badge uk-badge-primary">{{ open_list|length }}</span></a></li>#}
+{#                        </ul>#}
                 </div>
             </div>
         </nav>
@@ -64,7 +64,7 @@
                     <div data-uk-sticky="{top:10, animation: 'uk-animation-slide-top'}">
                         <ul class="uk-tab uk-tab-left">
                             <li class="{% if current_page == "event-subproject" %}uk-active{% endif %}"><a href="{% url "event:sub-project" %}">子项目</a></li>
-                            <li class="{% if current_page == "event-type" %}uk-active{% endif %}"><a href="{% url "event:type" %}">事件类型</a></li>
+                            <li class="{% if current_page == "event-weekly" %}uk-active{% endif %}"><a href="{% url "event:weekly" %}">七天事件处理趋势图</a></li>
                             <li class="{% if current_page == "event-level" %}uk-active{% endif %}"><a href="{% url "event:level" %}">事件等级</a></li>
 {#                            <li class="uk-disabled"><a href="">无权限</a></li>#}
                         </ul>
@@ -75,9 +75,10 @@
                     </div>
                 </div>
                 <div class="uk-width-medium-5-6 uk-margin-top">
-                {% if not open %}
-                    <p style="" class="uk-alert">暂无数据,请联系管理员</p>
-                {% else %}
+                {% block graph %}
+                    {% if not open %}
+                        <p style="" class="uk-alert">暂无数据,请联系管理员</p>
+                    {% else %}
                     <p class="uk-alert uk-alert-success">注意: 问题数量为0的类型不显示打开/关闭状态。 </p>
                     <h4 class="tm-article-subtitle">柱状图</h4>
                     <div id="container" style="height:400px"></div>
@@ -129,6 +130,7 @@
                         </tbody>
                     </table>
                 {% endif %}
+            {% endblock %}
                 </div>
             </div>
 
@@ -182,6 +184,7 @@
     <script type="text/javascript" src="{% static "Highcharts-4.1.9/js/highcharts.js" %}"></script>
     <script type="text/javascript" src="{% static "Highcharts-4.1.9/js/modules/exporting.js" %}"></script>
     <script type="text/javascript" src="{% static "Highcharts-4.1.9/js/modules/data.js" %}"></script>
+    <script type="text/javascript" src="{% static "ECharts3.0.2/echarts.min.js" %}"></script>
     <script>
     $(document).ready(function(){
 
@@ -209,5 +212,7 @@
             }
         });
     });
+    {% block script-weekly %}
+    {% endblock %}
     </script>
 {% endblock %}

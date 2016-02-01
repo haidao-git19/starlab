@@ -6,6 +6,6 @@ from .views import *
 
 urlpatterns = [
     url(r'^sub-project', EventSubprojectView.as_view(), name='sub-project'),
-    url(r'^type$', EventTypeView.as_view(), name='type'),
+    url(r'^weekly', WeeklyEventView.as_view(), name='weekly'),
     url(r'^level', EventLevelView.as_view(), name='level'),
 ]

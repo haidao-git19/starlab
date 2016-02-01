@@ -1,0 +1,77 @@
+{% extends "event/status.html" %}
+
+{% block graph %}
+    <h4 class="tm-article-subtitle">{{ graphTitle }}</h4>
+    <div id="main" style="height:500px;"></div>
+{% endblock %}
+
+{% block script-weekly %}
+var myChart = echarts.init(document.getElementById('main'));
+option = {
+    tooltip : {
+        trigger: 'axis'
+    },
+    legend: {
+        data:['基站','网络','系统','应用(开放平台)','应用(数据算法)']
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    toolbox: {
+        feature: {
+{#            saveAsImage: {}#}
+        }
+    },
+    xAxis : [
+        {
+            type : 'category',
+            boundaryGap : false,
+{#            data : ['周一','周二','周三','周四','周五','周六','周日']#}
+            data : {{ weekly|safe }}
+        }
+    ],
+    yAxis : [
+        {
+            type : 'value'
+        }
+    ],
+    series : [
+        {
+            name:'基站',
+            type:'line',
+            stack: '总量',
+            data: {{ counts_list|safe }}[0]
+        },
+        {
+            name:'网络',
+            type:'line',
+            stack: '总量',
+            data:{{ counts_list|safe }}[1]
+        },
+        {
+            name:'系统',
+            type:'line',
+            stack: '总量',
+            data:{{ counts_list|safe }}[2]
+        },
+        {
+            name:'应用(开放平台)',
+            type:'line',
+            stack: '总量',
+            data:{{ counts_list|safe }}[3]
+        },
+        {
+            name:'应用(数据算法)',
+            type:'line',
+            stack: '总量',
+            data:{{ counts_list|safe }}[4]
+        }
+    ]
+};
+
+// 使用刚指定的配置项和数据显示图表。
+myChart.setOption(option);
+{% endblock %}

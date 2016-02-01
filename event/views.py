@@ -28,8 +28,9 @@ from .models import Issues, Projects
 # rgt = models.IntegerField(blank=True, null=True)
 # is_private = models.IntegerField()
 # closed_on = models.DateTimeField(blank=True, null=True)
-import time
+import datetime
 from django.shortcuts import get_object_or_404
+import json
 
 
 class EventSubprojectView(ListView):
@@ -55,15 +56,49 @@ class EventSubprojectView(ListView):
         return context
 
 
-class EventTypeView(ListView):
-    template_name = "event/status.html"
+class WeeklyEventView(ListView):
+    template_name = "event/weekly.html"
     queryset = Issues.objects.using('eventdb').all()
 
     def get_context_data(self, **kwargs):
-        context = super(EventTypeView, self).get_context_data(**kwargs)
-        context['graphTitle'] = "不同事件类型的状态"
-        context['current_page'] = "event-type"
-        context['open'] = False
+        context = super(WeeklyEventView, self).get_context_data(**kwargs)
+        context['graphTitle'] = "七天事件处理趋势图(线性图)"
+        context['current_page'] = "event-weekly"
+        project_list = ['基站','网络','系统','应用(开放平台)','应用(数据算法)']
+        today_date = datetime.date.today()
+        date_list = [
+            today_date - datetime.timedelta(days = 7),
+            today_date - datetime.timedelta(days = 6),
+            today_date - datetime.timedelta(days = 5),
+            today_date - datetime.timedelta(days = 4),
+            today_date - datetime.timedelta(days = 3),
+            today_date - datetime.timedelta(days = 2),
+            today_date - datetime.timedelta(days = 1),
+         ]
+        weekly = []
+        for i in date_list:
+            weekly.append("{}月{}日".format(i.month, i.day))
+        project_dict = {
+            "基站": 16,
+            "网络": 14,
+            "系统": 13,
+            "应用(开放平台)": 17,
+            "应用(数据算法)": 18,
+        }
+        tmp_querysets = Issues.objects.using('eventdb').filter(created_on__gt=datetime.datetime.now()-datetime.timedelta(days = 7))
+        print tmp_querysets
+        counts_list = []
+        for project in project_list:
+            a = []
+            for date in date_list:
+                b = 0
+                for i in tmp_querysets.filter(project_id=project_dict[project]):
+                    if i.created_on.month == date.month and i .created_on.day == date.day:
+                        b += 1
+                a.append(b)
+            counts_list.append(a)
+        context['counts_list'] = json.dumps(counts_list)
+        context['weekly'] = json.dumps(weekly) # x轴
         return context
 
 

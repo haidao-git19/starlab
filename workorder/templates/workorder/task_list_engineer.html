@@ -88,8 +88,18 @@
                     $(this).isDisabled();
                 },
                 success: function(data){
-                    swal("Good work!", data.return, "success");
-                    location.reload();
+                    swal({
+                        title: "成功!",
+                        text: data.return,
+                        type: "success",
+{#                        showCancelButton: true,#}
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "确定",
+                        closeOnConfirm: false
+                    },
+                    function(){
+                        location.reload();
+                    });
                 }
             });/* end ajax */
         });

@@ -28,8 +28,9 @@ STATE_CHOICES = (
 )
 
 TYPE_CHOICES = (
-    (0, '常规变更'),
+    (0, '日常变更'),
     (1, '紧急变更'),
+    (2, '重大变更'),
 )
 import datetime
 # 工单

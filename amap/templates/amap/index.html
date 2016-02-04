@@ -1,0 +1,287 @@
+{% load staticfiles %}
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>自定义样式信息窗体</title>
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
+    <style type="text/css">
+        .info {
+            border: solid 0 silver;
+        }
+        div.info-top {
+            position: relative;
+            background: none repeat scroll 0 0 #F9F9F9;
+            border: 0;
+            border-bottom: 1px solid #CCC;
+            border-radius: 5px 5px 0 0;
+        }
+        div.info-top div {
+            display: inline-block;
+            color: #333333;
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 31px;
+            padding: 0 10px;
+        }
+        div.info-top img {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            transition-duration: 0.25s;
+        }
+        div.info-top img:hover {
+            box-shadow: 0px 0px 5px #000;
+        }
+        div.info-middle {
+            font-size: 12px;
+            padding: 6px;
+            line-height: 20px;
+        }
+        div.info-bottom {
+            height: 0px;
+            width: 100%;
+            clear: both;
+            text-align: center;
+        }
+        div.info-bottom img {
+            position: relative;
+            z-index: 104;
+        }
+        span {
+            margin-left: 5px;
+            font-size: 11px;
+        }
+        .info-middle img {
+            float: left;
+            margin-right: 6px;
+        }
+    </style>
+    <script type="text/javascript"
+            src="http://webapi.amap.com/maps?v=1.3&key=f9f0aedecf4a69390a96a3d62f80e988"></script>
+    <script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>
+</head>
+<body>
+<div id="container"></div>
+
+<div  class='button-group' style="background-color: #0d9bf2">
+    <input type='checkbox' onclick='refresh()' checked name='bg'>背景
+    <input type='checkbox' onclick='refresh()' checked name='road'>道路
+    <input type='checkbox' onclick='refresh()' checked name='building'>建筑物
+    <input type='checkbox' onclick='refresh()' checked name='point'>标注
+</div>
+{#<div class='button-group' style="background-color: #0d9bf2">#}
+{#    <input type='radio' onclick='refresh(this.value)' checked name='mapStyle' value='normal'>normal#}
+{#    <input type='radio' onclick='refresh(this.value)' name='mapStyle' value='blue_night'>blue_night#}
+{#    <input type='radio' onclick='refresh(this.value)' name='mapStyle' value='light'>light#}
+{#    <input type='radio' onclick='refresh(this.value)' name='mapStyle' value='fresh'>fresh#}
+{#</div>#}
+<div id="tip" style="background-color: #0d9bf2; border:0">
+    <span>图例</span>
+    <div><img src="{% static "img/map/Point_Green.png" %}" height="10" width="10"> 加密站(线上)_online: {{ num1 }}</div>
+    <div><img src="{% static "img/map/Point_Red.png" %}" height="10" width="10"> 加密站(线上)_offline:{{ num2 }}</div>
+    <div><img src="{% static "img/map/S_point_Green01.png" %}" height="10" width="10"> 加密站(线下)_online: {{ num3 }}</div>
+    <div><img src="{% static "img/map/S_Point_Red01.png" %}" height="10" width="10"> 加密站(线下)_offline: {{ num4 }}</div>
+    <div><img src="{% static "img/map/Control_Point_Green.png" %}" height="10" width="10"> 框架站_online: {{ num5 }}</div>
+    <div><img src="{% static "img/map/Control_Point_RED.png" %}" height="10" width="10"> 框架站_offline: {{ num6 }}</div>
+    <div>Total Station: {{ num }}</div>
+</div>
+<script type="text/javascript">
+	//地图初始化时，在地图上添加一个marker标记,鼠标点击marker可弹出自定义的信息窗体
+    var map = new AMap.Map("container", {
+        resizeEnable: true,
+        center: [106.917797,37.811887],
+        zoom: 5
+    });
+    map.setMapStyle('blue_night');
+{#    var points={#}
+{#        code: 200,#}
+{#        data:#}
+{#                [#}
+{#                    {#}
+{#                        id: 1,#}
+{#                        lngLat: ['116.368904', '39.923423'],#}
+{#                        sharp: 0,#}
+{#                        status: 1#}
+{#                    },#}
+{#                    {id:2,lngLat:['116.368504', '39.925423'],sharp:0, status:1},#}
+{#                    {id:3,lngLat:['116.368604', '39.923423'],sharp:0, status:1}#}
+{#                ]#}
+{#    };#}
+{#    number("123");#}
+    // 示例,不全
+    var test ={
+        fields: {
+            id: 1,
+            latitude: "120.185698676",
+            state: "0",
+            longitude: "30.192333764",
+            category_id: '0',
+            rec_sn: 'asdasdasd'
+        },
+        model: "amap.receiver",
+        pk: 69
+    };
+    console.log([test.fields.latitude, test.fields.longitude]);
+    // 所有基站
+    var all = {{ data|safe }};
+    console.log(all.length);
+    // 格式化成高德javascriptapi接受的参数
+    for (var p = 0; p < all.length; p++){
+        //添加marker标记
+        var image_path ='';
+        if(all[p].fields.category_id==1 && all[p].fields.state==1){
+            image_path = '{% static "img/map/Point_Green.png" %}';
+        }
+        else if(all[p].fields.category_id==1 && all[p].fields.state==0){
+            image_path = '{% static "img/map/Point_Red.png" %}';
+        }
+        else if(all[p].fields.category_id==2 && all[p].fields.state==1){
+            image_path = '{% static "img/map/S_point_Green01.png" %}';
+        }
+        else if(all[p].fields.category_id==2 && all[p].fields.state==0){
+            image_path = '{% static "img/map/S_Point_Red01.png" %}';
+        }
+        else if(all[p].fields.category_id==3 && all[p].fields.state==1){
+            image_path = '{% static "img/map/Control_Point_Green.png" %}';
+        }
+        else if(all[p].fields.category_id==3 && all[p].fields.state==0){
+            image_path = '{% static "img/map/Control_Point_RED.png" %}';
+        }
+        try {
+            marker = new AMap.Marker({
+                position: [all[p].fields.latitude, all[p].fields.longitude],
+                map: map,
+                icon: new AMap.Icon({
+                    image: image_path,
+                    {#                image: 'http://www.easyicon.net/api/resizeApi.php?id=1061216&size=128',#}
+                    imageSize: new AMap.Size(10, 10)
+                })
+            });
+        }
+        catch(e){
+            alert("此页面有一个错误:\n"+e)
+        }
+        console.log([all[p].fields.latitude, all[p].fields.longitude]);
+        marker.state = all[p].fields.state;
+        marker.category_id = all[p].fields.category_id;
+        marker.rec_sn = all[p].fields.rec_sn;
+        marker.station_cnname = all[p].fields.station_cnname;
+        marker.station_ip = all[p].fields.station_ip;
+        marker.sat_num = all[p].fields.sat_num;
+        marker.ant_angle = all[p].fields.ant_angle;
+        marker.real_time = all[p].fields.real_time;
+        marker.on('click', markerClick);
+    }
+{#    for (var i = 0, marker; i < points.data.length; i++) {#}
+{#        //添加marker标记#}
+{#        marker = new AMap.Marker({#}
+{#            position: points.data[i].lngLat,#}
+{#            map: map,#}
+{#            icon: new AMap.Icon({#}
+{#                image: 'http://www.easyicon.net/api/resizeApi.php?id=1061216&size=128',#}
+{#                imageSize:new AMap.Size(16,16)#}
+{#            })#}
+{#        });#}
+{#        marker.mycontent = points.data[i].id;#}
+{#        marker.on('click', markerClick);#}
+{#    }#}
+
+    //鼠标点击marker弹出自定义的信息窗体
+    function markerClick(e) {
+{#        infoWindow.setContent(e.target.content);#}
+        //实例化信息窗体
+        var title = e.target.station_cnname + '<span style="font-size:11px;color:#F00;"></span>',
+        content = [];
+        console.log(e.target.category_id);
+        if(e.target.category_id==1){
+            content.push("基准站类型: 加密站(线上)");
+        }
+        else if(e.target.category_id==2){
+            content.push("基准站类型: 加密站(线下)");
+        }
+        else if(e.target.category_id==3){
+            content.push("基准站类型: 框架站");
+        }
+
+        content.push("SN: " + e.target.rec_sn);
+        content.push("IP: " + e.target.station_ip);
+        content.push("卫星数: " + e.target.sat_num);
+        content.push("高度角: " + e.target.ant_angle);
+        content.push("数据时间: " + e.target.real_time);
+        if(e.target.state==0){
+            content.push("状态: " + "<span style='color:red'>离线</span>");
+        }
+        else if(e.target.state==1){
+            content.push("状态: " + "<span style='color:green'>在线</span>");
+        }
+        var infoWindow = new AMap.InfoWindow({
+            isCustom: true,  //使用自定义窗体
+            content: createInfoWindow(title, content.join("<br/>")),
+            offset: new AMap.Pixel(16, -45)
+        });
+
+        //构建自定义信息窗体
+        function createInfoWindow(title, content) {
+            var info = document.createElement("div");
+            info.className = "info";
+
+            //可以通过下面的方式修改自定义窗体的宽高
+            //info.style.width = "400px";
+            // 定义顶部标题
+            var top = document.createElement("div");
+            var titleD = document.createElement("div");
+            var closeX = document.createElement("img");
+            top.className = "info-top";
+            titleD.innerHTML = title;
+            closeX.src = "http://webapi.amap.com/images/close2.gif";
+            closeX.onclick = closeInfoWindow;
+
+            top.appendChild(titleD);
+            top.appendChild(closeX);
+            info.appendChild(top);
+
+            // 定义中部内容
+            var middle = document.createElement("div");
+            middle.className = "info-middle";
+            middle.style.backgroundColor = 'white';
+            middle.innerHTML = content;
+            info.appendChild(middle);
+
+            // 定义底部内容
+            var bottom = document.createElement("div");
+            bottom.className = "info-bottom";
+            bottom.style.position = 'relative';
+            bottom.style.top = '0px';
+            bottom.style.margin = '0 auto';
+            var sharp = document.createElement("img");
+{#            sharp.src = "http://webapi.amap.com/images/sharp.png";#}
+            sharp.src = "http://webapi.amap.com/images/sharp.png";
+            bottom.appendChild(sharp);
+            info.appendChild(bottom);
+            return info;
+        }
+
+        //关闭信息窗体
+        function closeInfoWindow() {
+            map.clearInfoWindow();
+        }
+        infoWindow.open(map, e.target.getPosition());
+    }
+
+    //点击刷新选择地图属性是否显示
+    function refresh() {
+        var boxes = document.getElementsByTagName('input');
+        var features = [];
+        for (var i = 0; i < boxes.length; i += 1) {
+            if (boxes[i].checked === true) {
+                features.push(boxes[i].name);
+            }
+        }
+        map.setFeatures(features);
+    }
+</script>
+</body>
+</html>

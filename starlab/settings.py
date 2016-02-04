@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'event',
     'workflow',
     'workorder',
+    'amap',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -96,7 +97,7 @@ DATABASES = {
         # 'HOST': '172.16.64.24',
         'PORT': '3306'
     },
-    # (readmine)
+    # 晏彬事件管理数据库
     'eventdb': {
         'NAME': 'redmine',
         'ENGINE': 'django.db.backends.mysql',
@@ -105,6 +106,15 @@ DATABASES = {
         'HOST': '123.56.11.67',
         'PORT': '3306'
 
+    },
+    # 晏彬地图测试数据库
+    'stationdb': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'cpns',
+        'USER': 'liqiang',
+        'PASSWORD': 'liqiang456',
+        'HOST': '123.56.11.123',
+        'PORT': '3306',
     }
 }
 

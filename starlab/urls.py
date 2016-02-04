@@ -24,4 +24,5 @@ urlpatterns = [
     url(r'^event/', include("event.urls", namespace="event")),
     url(r'^workflow/', include("workflow.urls", namespace="workflow")),
     url(r'^workorder/', include("workorder.urls", namespace="workorder")),
+    url(r'^amap/', include("amap.urls", namespace="amap")),
 ]

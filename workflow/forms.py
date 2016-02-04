@@ -19,8 +19,9 @@ from django.contrib.auth.models import User
 # comment = models.CharField(null=True, blank=True, max_length=255, verbose_name="注释")
 
 TYPE_CHOICES = (
-    (0, '常规变更'),
+    (0, '日常变更'),
     (1, '紧急变更'),
+    (2, '重大变更'),
 )
 class ItemCreateForm(forms.ModelForm):
 

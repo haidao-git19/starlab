@@ -299,7 +299,8 @@ PROJECT_CHOICES = (
 
 
 class Issues(models.Model):
-    tracker_id = models.IntegerField(primary_key=True)
+    id = models.IntegerField(primary_key=True)
+    tracker_id = models.IntegerField()
     project_id = models.IntegerField(choices=PROJECT_CHOICES)
     subject = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)

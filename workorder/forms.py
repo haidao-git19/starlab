@@ -16,22 +16,35 @@ class OrderForm(forms.ModelForm):
         widget=forms.Select(
             attrs={
                 'class': 'uk-width-1-1',
+                 'onchange': "getCaOptions(this.value)"
             }
         )
     )
     purpose = forms.CharField(
         required=True,  # 前端的校验
-        label="* 目的:",
+        label="* 需求/描述:",
         error_messages={'required': "必填项"},
         widget=forms.Textarea(
             attrs={
                 'placeholder': u'不能为空',
-                'rows': 3,
+                'rows': 10,
                 'class': 'uk-width-1-1',
             }
         ),
     )
-    comment = forms.CharField(
+    # comment = forms.CharField(
+    #     required=False,  # 前端的校验
+    #     label="备注:",
+    #     error_messages={'required': "必填项"},
+    #     widget=forms.Textarea(
+    #         attrs={
+    #             'placeholder': u'可为空',
+    #             'rows': 3,
+    #             'class': 'uk-width-1-1',
+    #         }
+    #     ),
+    # )
+    description = forms.CharField(
         required=False,  # 前端的校验
         label="备注:",
         error_messages={'required': "必填项"},
@@ -43,19 +56,7 @@ class OrderForm(forms.ModelForm):
             }
         ),
     )
-    description = forms.CharField(
-        required=False,  # 前端的校验
-        label="描述:",
-        error_messages={'required': "必填项"},
-        widget=forms.Textarea(
-            attrs={
-                'placeholder': u'可为空',
-                'rows': 3,
-                'class': 'uk-width-1-1',
-            }
-        ),
-    )
     class Meta:
         model = Order
-        exclude = ['rout', 'enddatetime']
+        exclude = ['rout', 'enddatetime', 'comment']
 

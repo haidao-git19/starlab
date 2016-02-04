@@ -160,6 +160,7 @@ class Category2(models.Model):
     category1 = models.ForeignKey("workorder.Category1", related_name='category')
     name = models.CharField(max_length=255)
 
+    auto_template = models.CharField(max_length=5000, null=True, blank=True)
     description = models.CharField(max_length=255, null=True, blank=True)
 
     def __unicode__(self):

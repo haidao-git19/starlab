@@ -1,0 +1,54 @@
+{% extends "event/status.html" %}
+
+{% block graph %}
+    <h4 class="tm-article-subtitle">{{ graphTitle }}</h4>
+    <div id="main" style="height:500px;"></div>
+{% endblock %}
+
+{% block script-weekly %}
+var myChart = echarts.init(document.getElementById('main'));
+option = {
+    title : {
+        text: '故障类型数量统计',
+        subtext: '对象为七天内所有事件'
+    },
+    tooltip : {
+        trigger: 'axis'
+    },
+    legend: {
+        data:['故障类数量']
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis : [
+        {
+            type : 'value',
+            boundaryGap : [0, 0.01]
+        }
+    ],
+    yAxis : [
+        {
+            type : 'category',
+            data: {{ type_list|safe }}
+{#            data : ['巴西','印尼','美国','印度','中国','世界人口(万)']#}
+        }
+    ],
+    series : [
+        {
+            name:'故障类数量',
+            type:'bar',
+            data : {{ result_list|safe }}
+{#            data:[18203, 23489, 29034, 104970, 131744, 630230]#}
+        }
+    ]
+};
+
+
+
+// 使用刚指定的配置项和数据显示图表。
+myChart.setOption(option);
+{% endblock %}

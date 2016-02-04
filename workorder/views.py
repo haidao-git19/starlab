@@ -269,3 +269,18 @@ def complete(request):
             'return': '处理结果不能为空'
         }
     return JsonResponse(data, status=400)
+
+@csrf_exempt
+def autoComplete(request):
+    category_id = request.POST.get('category_id')
+    queryset = get_object_or_404(Category2, id=category_id)
+    if queryset.auto_template:
+        data = {
+            'return': queryset.auto_template
+        }
+        return JsonResponse(data, status=200)
+    else:
+        data = {
+            'return': "空"
+        }
+        return JsonResponse(data, status=400)

@@ -19,4 +19,5 @@ urlpatterns += [
     url(r'^dispense/$', dispense, name='dispense-task'),
     url(r'^complete/$', complete, name='complete-task'),
     url(r'^agree/$', agree, name='agree-task'),
+    url(r'^auto_template/$', autoComplete, name='auto_complete'),
 ]

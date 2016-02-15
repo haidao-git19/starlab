@@ -46,7 +46,7 @@
                     <ul class="uk-navbar-nav">
                         <li><a href="http://pwd.wz-inc.com"><i class="uk-icon-edit"></i> 修改密码</a></li>
 {#                        <li><a href="#notice" data-uk-smooth-scroll> 公告<span class="uk-badge uk-badge-primary">0</span></a></li>#}
-                        <li><a href="#notice" data-uk-smooth-scroll>{{ request.user.last_name }}{{ request.user.first_name }} </a></li>
+                        <li><a href="{% url "logout" %}" data-uk-tooltip="{pos:'bottom-left'}" title="点击注销">{{ request.user.last_name }}{{ request.user.first_name }} </a></li>
                     </ul>
                 </div>
         </div>

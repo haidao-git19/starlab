@@ -21,6 +21,8 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include("home.urls", namespace="home")),
     url(r'^accounts/login/$', login, {"template_name": "home/login.html"}, name='login'),
+    url(r'^accounts/logout/$', logout_then_login, name='logout'),
+    url(r'^accounts/profile/$', include("home.urls", namespace="home")),
     url(r'^event/', include("event.urls", namespace="event")),
     url(r'^workflow/', include("workflow.urls", namespace="workflow")),
     url(r'^workorder/', include("workorder.urls", namespace="workorder")),

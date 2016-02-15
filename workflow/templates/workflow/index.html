@@ -15,7 +15,7 @@
                     </ul>
                     <div class="uk-navbar-flip">
                         <ul class="uk-navbar-nav">
-                            <li><a href="" data-uk-smooth-scroll>{{ request.user.last_name }}{{ request.user.first_name }} </a></li>
+                            <li><a href="{% url "logout" %}" title="点击注销">{{ request.user.last_name }}{{ request.user.first_name }} </a></li>
                             <li><a href="" data-uk-smooth-scroll>未解决 <span class="uk-badge uk-badge-primary">{{ open_list|length }}</span></a></li>
                         </ul>
                 </div>

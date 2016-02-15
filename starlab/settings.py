@@ -114,6 +114,7 @@ DATABASES = {
         'USER': 'liqiang',
         'PASSWORD': 'liqiang456',
         'HOST': '123.56.11.123',
+        # 'HOST': '172.16.64.22',
         'PORT': '3306',
     }
 }

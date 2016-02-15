@@ -10,6 +10,16 @@
                 <ul class="uk-navbar-nav">
 {#                    <li class=""><a onclick="error()"><i class="uk-icon-cubes"></i> 资产管理</a></li>#}
                     <li class=""><a href="{% url "event:sub-project" %}"><i class="uk-icon-area-chart"></i> 监控系统</a></li>
+                    <li class="uk-parent {% if "amap" in current_page %}uk-active{% endif %}" data-uk-dropdown="">
+                        <a href="" class="uk-text-bold"><i class="uk-icon-map-marker"></i> 基站管理</a>
+
+                        <div class="uk-dropdown uk-dropdown-navbar">
+                            <ul class="uk-nav uk-nav-navbar">
+                                <li><a href="{% url "amap:index" %}">站点监测</a></li>
+                                <li><a href="http://123.56.11.67:8000/station/">运维管理</a></li>
+                            </ul>
+                        </div>
+                    </li>
                     <li class=""><a onclick="error()"><i class="uk-icon-sitemap"></i> 发布系统</a></li>
                     <li class=""><a><i class="uk-icon-pie-chart"></i> 报表系统</a></li>
                     <li class=""><a href="{% url "workflow:item-list" %}"><i class="uk-icon-street-view"></i> 流程</a></li>

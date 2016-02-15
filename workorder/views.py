@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 import time
 from django import forms
+import json
 # Create your views here.
 
 
@@ -276,11 +277,11 @@ def autoComplete(request):
     queryset = get_object_or_404(Category2, id=category_id)
     if queryset.auto_template:
         data = {
-            'return': queryset.auto_template
+            'return': queryset.auto_template,
         }
         return JsonResponse(data, status=200)
     else:
         data = {
-            'return': "空"
+            'return': "空",
         }
         return JsonResponse(data, status=400)

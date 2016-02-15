@@ -60,6 +60,7 @@
     {% endfor %}
 <h4 class="tm-article-subtitle uk-text-bold">待审批任务列表</h4>
     {% for user in current_actor_users %}
+        {% if user.task.order.state == 1 %}
         <div class="uk-panel uk-panel-box uk-panel-box-warning uk-text-center-small">
             No.{{ forloop.counter }}
             <br>
@@ -77,6 +78,7 @@
             <button class="uk-button uk-button-success btn-agree{{ forloop.counter }}" id={{ user.task.id }}>同意</button>
 {#            <button class="uk-button uk-button-success" id={{ task.id }}>拒绝</button>#}
         </div>
+        {% endif %}
         <br>
     {% empty %}
         <p style="" class="uk-alert uk-alert-success">暂无</p>

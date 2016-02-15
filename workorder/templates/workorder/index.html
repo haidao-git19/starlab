@@ -113,7 +113,7 @@ function getCaOptions(category_id) {
             load_comment = $.ajax({
                 type: "POST",
                 url: "{% url "workorder:auto_complete" %}",
-                dataType:'text',
+                dataType:'json',
                 data:{
                     'category_id': category_id
                 },
@@ -121,11 +121,12 @@ function getCaOptions(category_id) {
 {#                        swal("恭喜:", data.return, "success");#}
 {#                },#}
                 success: function(data){
+{#                    $("#id_purpose").val("asdasd");#}
                     $("#id_purpose").val(data.return);
                     swal("模板切换成功", data.return, "success");
                 },
                 error: function (data) {
-                    swal("当前类型无默认模板", data.return, "info");
+                    swal("当前类型无默认模板", data.result, "info");
                 },
                 complete: function(){
                 }

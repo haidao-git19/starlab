@@ -24,6 +24,9 @@ class AmapIndexView(ListView):
             'sat_num',
             'ant_angle',
             'real_time',
+            'station_code',
+            'rec_type',
+            'device_type',
             ),
         )
         context['data'] = data

@@ -48,6 +48,7 @@ class Receiver(models.Model):
     station_cnname = models.CharField(max_length=20, blank=True, null=True)
     station_code = models.CharField(max_length=20, blank=True, null=True)
     station_ip = models.CharField(max_length=20, blank=True, null=True)
+    device_type = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False

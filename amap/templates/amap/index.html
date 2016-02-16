@@ -82,9 +82,9 @@
 <div id="tip" style="background-color: #0d9bf2; border:0">
     <span>图例</span>
     <div><img src="{% static "img/map/Point_Green.png" %}" height="10" width="10"> 加密站(生产)_online: {{ num1 }}</div>
-    <div><img src="{% static "img/map/Point_Red.png" %}" height="10" width="10"> 加密站(建设)_offline:{{ num2 }}</div>
-    <div><img src="{% static "img/map/S_point_Green01.png" %}" height="10" width="10"> 加密站(线下)_online: {{ num3 }}</div>
-    <div><img src="{% static "img/map/S_Point_Red01.png" %}" height="10" width="10"> 加密站(线下)_offline: {{ num4 }}</div>
+    <div><img src="{% static "img/map/Point_Red.png" %}" height="10" width="10"> 加密站(生产)_offline:{{ num2 }}</div>
+    <div><img src="{% static "img/map/S_point_Green01.png" %}" height="10" width="10"> 加密站(建设)_online: {{ num3 }}</div>
+    <div><img src="{% static "img/map/S_Point_Red01.png" %}" height="10" width="10"> 加密站(建设)_offline: {{ num4 }}</div>
     <div><img src="{% static "img/map/Control_Point_Green.png" %}" height="10" width="10"> 框架站_online: {{ num5 }}</div>
     <div><img src="{% static "img/map/Control_Point_RED.png" %}" height="10" width="10"> 框架站_offline: {{ num6 }}</div>
     <div>Total Station: {{ num }}</div>
@@ -166,7 +166,7 @@
                     icon: new AMap.Icon({
                         image: image_path,
                         {#                image: 'http://www.easyicon.net/api/resizeApi.php?id=1061216&size=128',#}
-                        imageSize: new AMap.Size(10, 10)
+                        imageSize: new AMap.Size(8, 8)
                     })
                 });
             }
@@ -183,6 +183,8 @@
             marker.ant_angle = all[p].fields.ant_angle;
             marker.real_time = all[p].fields.real_time;
             marker.station_code = all[p].fields.station_code;
+            marker.rec_type = all[p].fields.rec_type;
+            marker.device_type = all[p].fields.device_type;
             marker.on('click', markerClick);
         }
     }
@@ -213,17 +215,20 @@
         content = [];
         console.log(e.target.category_id);
         if(e.target.category_id==1){
-            content.push("基准站类型: 加密站(生产)");
+            content.push("类型: 加密站(生产)");
         }
         else if(e.target.category_id==2){
-            content.push("基准站类型: 加密站(建设)");
+            content.push("类型: 加密站(建设)");
         }
         else if(e.target.category_id==3){
-            content.push("基准站类型: 框架站");
+            content.push("类型: 框架站");
         }
 
+        content.push("代码: " + e.target.station_code);
         content.push("SN: " + e.target.rec_sn);
         content.push("IP: " + e.target.station_ip);
+        content.push("接收机品牌: " + e.target.device_type);
+        content.push("型号: " + e.target.rec_type);
         content.push("卫星数: " + e.target.sat_num);
         content.push("高度角: " + e.target.ant_angle);
         content.push("数据时间: " + e.target.real_time);

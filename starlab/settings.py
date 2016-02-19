@@ -82,42 +82,7 @@ WSGI_APPLICATION = 'starlab.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-
-DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # },
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'starlab',
-        'USER': 'django',
-        'PASSWORD': 'yuan',
-        'HOST': '123.56.18.18',
-        # 'HOST': '172.16.64.24',
-        'PORT': '3306'
-    },
-    # 晏彬事件管理数据库
-    'eventdb': {
-        'NAME': 'redmine',
-        'ENGINE': 'django.db.backends.mysql',
-        'USER': 'root',
-        'PASSWORD': 'mysmsdb',
-        'HOST': '123.56.11.67',
-        'PORT': '3306'
-
-    },
-    # 晏彬地图测试数据库
-    'stationdb': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cpns',
-        'USER': 'liqiang',
-        'PASSWORD': 'liqiang456',
-        'HOST': '123.56.11.123',
-        # 'HOST': '172.16.64.22',
-        'PORT': '3306',
-    }
-}
+from secrit_config import *
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -147,48 +112,6 @@ STATICFILES_DIRS = (
 # -------------- LADP config
 import ldap
 from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
-
-# Baseline configuration.
-AUTH_LDAP_SERVER_URI = "ldap://ldap.wz-inc.com"
-AUTH_LDAP_CONNECTION_OPTIONS = {
-    ldap.OPT_REFERRALS: 0
-}
-
-AUTH_LDAP_BIND_DN = "svr_ldap@wz.com"
-AUTH_LDAP_BIND_PASSWORD = "Qs1jcsxdl"
-AUTH_LDAP_USER_SEARCH = LDAPSearch("OU=Staff,OU=Account,DC=WZ,DC=com",
-    ldap.SCOPE_SUBTREE, "(sAMAccountName=%(user)s)")
-# AUTH_LDAP_USER_DN_TEMPLATE = "sAMAccountName=%(user)s,OU=Employees,OU=Cisco Users,DC=cisco,DC=com"
-
-# Populate the Django user from the LDAP directory.
-AUTH_LDAP_USER_ATTR_MAP = {
-    "first_name": "givenName",
-    "last_name": "sn",
-    "email": "mail",
-}
-
-# This is the default, but I like to be explicit.
-AUTH_LDAP_ALWAYS_UPDATE_USER = True
-
-# Use LDAP group membership to calculate group permissions.
-AUTH_LDAP_FIND_GROUP_PERMS = True
-
-# Cache group memberships for an hour to minimize LDAP traffic
-AUTH_LDAP_CACHE_GROUPS = True
-AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
-
-
-# Keep ModelBackend around for per-user permissions and maybe a local
-# superuser.
-AUTHENTICATION_BACKENDS = (
-    'django_auth_ldap.backend.LDAPBackend',
-    'django.contrib.auth.backends.ModelBackend',
-)
-
-
+# from secrit_config import *
 # ----------------- EMAIL config
-
-EMAIL_HOST = "smtp.wz-inc.com"
-EMAIL_PORT = "25"
-EMAIL_HOST_USER = "datadev@wz-inc.com"
-EMAIL_HOST_PASSWORD = "Qxwz0818"
+# from secrit_config import *

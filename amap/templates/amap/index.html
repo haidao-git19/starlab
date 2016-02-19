@@ -23,7 +23,7 @@
         div.info-top div {
             display: inline-block;
             color: #333333;
-            font-size: 14px;
+            font-size: 10px;
             font-weight: bold;
             line-height: 31px;
             padding: 0 10px;
@@ -67,7 +67,7 @@
 <body>
 <div id="container"></div>
 
-<div  class='button-group' style="background-color: #0d9bf2">
+<div  class='button-group' style="background-color: #0d9bf2;font-size: 10px;">
     <input type='checkbox' onclick='refresh()' checked name='bg'>背景
     <input type='checkbox' onclick='refresh()' checked name='road'>道路
     <input type='checkbox' onclick='refresh()' checked name='building'>建筑物
@@ -79,7 +79,7 @@
 {#    <input type='radio' onclick='refresh(this.value)' name='mapStyle' value='light'>light#}
 {#    <input type='radio' onclick='refresh(this.value)' name='mapStyle' value='fresh'>fresh#}
 {#</div>#}
-<div id="tip" style="background-color: #0d9bf2; border:0">
+<div id="tip" style="background-color: #0d9bf2; border:0;font-size: 10px;">
     <span>图例</span>
     <div><img src="{% static "img/map/Point_Green.png" %}" height="10" width="10"> 加密站(生产)_online: {{ num1 }}</div>
     <div><img src="{% static "img/map/Point_Red.png" %}" height="10" width="10"> 加密站(生产)_offline:{{ num2 }}</div>

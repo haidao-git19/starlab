@@ -62,7 +62,7 @@
     {% for user in current_actor_users %}
         {% if user.task.order.state == 1 %}
         <div class="uk-panel uk-panel-box uk-panel-box-warning uk-text-center-small">
-            No.{{ forloop.counter }}
+            任务编号:{{ user.task.order.name }}
             <br>
             {{ user.task }}
             <br>
@@ -79,7 +79,6 @@
 {#            <button class="uk-button uk-button-success" id={{ task.id }}>拒绝</button>#}
         </div>
         {% endif %}
-        <br>
     {% empty %}
         <p style="" class="uk-alert uk-alert-success">暂无</p>
     {% endfor %}
@@ -130,7 +129,7 @@
                     success: function(data){
                         swal({
                             title: "成功!",
-                            text: data.return,
+                            text: data.return + "数据库ID:" + data.id,
                             type: "success",
     {#                        showCancelButton: true,#}
                             confirmButtonColor: "#DD6B55",

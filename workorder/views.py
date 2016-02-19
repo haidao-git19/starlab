@@ -194,12 +194,14 @@ def agree(request):
                                          request.user.last_name,
                                          request.user.first_name,
                                          comment)
+    task_object.save() # debug了很久,我居然忘记了save -.-
     order_object = task_object.order
     order_object.comment = comment
     order_object.state = 2
     order_object.save()
     data = {
-        'return': '成功:已通知主管分发工单,ID:{}'.format(order_object.name)
+        'return': '成功:已通知主管分发工单,ID:{}'.format(order_object.name),
+        'id': taskid
     }
     return JsonResponse(data, status=200)
 

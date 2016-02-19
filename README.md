@@ -1,4 +1,1 @@
-# 2015年12月01日11:05:04 项目初始化（sweetalert & uikit & highcharts & jquery frameworks）
-# 2015年12月03日13:51:36 事件监控APP基本完成，包含表格、柱状图等，目前3个页面。
-# 2015年12月04日16:04:57 工作流APP启动
-# 2015年12月10日18:58:13 工作流App基本完成，增加详情页面，修改数据库字段以适应大字段的TEXT，适配换行
+back office and internal tools platform

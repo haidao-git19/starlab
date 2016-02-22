@@ -170,3 +170,14 @@ class Category2(models.Model):
         verbose_name = "小类"
         verbose_name_plural = "小类"
         ordering = ['category1', 'id']
+
+
+class ProposerManager(models.Model):
+    """
+    申请人的负责人先审批
+    """
+    group = models.ForeignKey("auth.Group")
+    user = models.ForeignKey("auth.User")
+
+    def __unicode__(self):
+        return "{}-{}".format(self.group.name, self.user.username)

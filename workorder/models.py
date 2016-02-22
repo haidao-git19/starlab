@@ -92,7 +92,7 @@ class Order(models.Model):
     rout = models.ForeignKey("workorder.Rout",default=1, related_name='orderrout')
 
     enddatetime = models.DateTimeField(null=True, blank=True)
-    purpose = models.CharField(max_length=5000, null=True, blank=True, verbose_name='目的') # 申请人填写申请目的
+    purpose = models.TextField(max_length=5000, null=True, blank=True, verbose_name='目的') # 申请人填写申请目的
     comment = models.CharField(max_length=5000, null=True, blank=True, verbose_name='备注') # 操作人加上去的
     description = models.CharField(max_length=255, null=True, blank=True, verbose_name='描述')
 

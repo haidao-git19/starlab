@@ -154,7 +154,7 @@
         var id = $(this).attr('pk');
         swal({
             title: "是否开启此表单审批流程?",
-            text: "会创建审批任务并告知默认负责人",
+            text: "会创建审批任务并告知您的主管",
             type: "info",
             showCancelButton: true,
             closeOnConfirm: false,
@@ -175,7 +175,7 @@
                 success: function(data){
 {#                    swal("审批开始,已通知相关审批人", data.return, "success");#}
                     swal({
-                        title: "审批开始,已通知相关类别负责人!",
+                        title: "成功",
                         text: data.return,
                         type: "success",
 {#                        showCancelButton: true,#}

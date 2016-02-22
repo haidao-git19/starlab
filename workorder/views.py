@@ -9,6 +9,10 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 import time
 from django import forms
+from .DingDing import DingDing
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.mail import EmailMultiAlternatives
+from django.contrib.auth.models import User, Group
 import json
 # Create your views here.
 
@@ -101,9 +105,17 @@ class TaskListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(TaskListView, self).get_context_data(**kwargs)
         context['current_page'] = "workorder-task-list"
-        # 所有任务列表/在前端区分任务状态
-        context['task_list'] = Task.objects.filter(order__category2__category1__manager=self.request.user)
-        # 和登录人相关的待审批任务
+        # 待分发任务列表/在前端区分任务状态
+        caus = CurrentActorUser.objects.filter(name=self.request.user)
+        task_list = []
+        for cau in caus:
+            if cau.task.state == 2:
+                task_list.append(cau.task)
+        print task_list
+        context['task_list'] = task_list
+        # context['task_list'] = Task.objects.filter(order__category2__category1__manager=self.request.user)
+        # 待审批任务
+        # TODO
         context['current_actor_users'] = CurrentActorUser.objects.filter(name=self.request.user)
         category1_objects = Category1.objects.filter(manager=self.request.user)
         print category1_objects
@@ -147,33 +159,60 @@ def createTask(request):
     try:
         # 找到订单
         order_object = get_object_or_404(Order, id=order_id)
-        # 找到订单对应流程模板的第一步流程
+        # 第一步流程与获得的申请人主管结合成一个审批实体
         rout_object = get_object_or_404(Rout, id=order_object.rout.id)
-        actor_object = get_object_or_404(Actor, rout=rout_object, sort='1')
-
+        actor_object1 = get_object_or_404(Actor, rout=rout_object, sort='1')
+        # actor_object2 = get_object_or_404(Actor, rout=rout_object, sort='2')
         # 创建工单对应任务
         task = Task.objects.create(name='任务:{}-({}{})'.format(order_object.purpose,
                                                               request.user.last_name,
                                                               request.user.first_name),
                                    order=order_object,
-                                   actor=actor_object,
+                                   actor=actor_object1,
                                    state=1,
                                    version='[{}]{}{}发起申请\n'.format(time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
                                                                request.user.last_name,
                                                                request.user.first_name)
                                    )
-        # 创建任务对应审批
-        # 找到流程一对应的固定审批人
-        actoruser_objects = ActorUser.objects.filter(actor=actor_object)
-        # 将所有固定审批人复制一套去临时审批人用来支持加签功能
+        # 获得申请人主管
+        proposer_group = Group.objects.none()
+        proposer_groups = order_object.owner.groups.all()
+        for pg in proposer_groups:
+            proposer_group = pg
+            break
+        porposer_manager = get_object_or_404(ProposerManager, group=proposer_group).user
+
+        # 创建当前审批人与流程和任务绑定
         queryset_list = []
-        for i in actoruser_objects:
-            queryset_list.append(CurrentActorUser(task=task, name=i.name, actor=i.actor))
+        queryset_list.append(CurrentActorUser(task=task, name=porposer_manager, actor=actor_object1))
+        # queryset_list.append(CurrentActorUser(task=task, name=porposer_manager, actor=actor_object2))
         CurrentActorUser.objects.bulk_create(queryset_list)
+
         order_object.state = 1 # 审批中
         order_object.save()
+        # --------------------- ding -------------------------------------------------------------------------
+        dd = DingDing()
+        proposer_group = Group.objects.none()
+        proposer_groups = order_object.owner.groups.all()
+        for pg in proposer_groups:
+            proposer_group = pg
+            break
+        # querysets 不支持切片操作,只有出此下策
+        print proposer_group
+        # 这里只取第一个组
+        id = porposer_manager.username
+        print id
+        url = request.build_absolute_uri(reverse('workorder:list-task'))
+        jsonmsg = {
+            "title": "您的组员({}{})有一个工单需要审批".format(order_object.owner.last_name, order_object.owner.first_name),
+            "text": "内容:{}".format(order_object.purpose),
+            "picUrl": "@lALOACZwe2Rk",
+            "messageUrl": url,
+        }
+        dd.send_link_message(ddID=id, json_content=jsonmsg)
+        # --------------------- ding -------------------------------------------------------------------------
         data = {
-            'return': '任务已创建并通知审批主管({}{}),任务ID:{}'.format(order_object.category2.category1.manager.last_name,
+            'return': '任务已创建并通知您的主管({}{}),任务ID:{}'.format(order_object.category2.category1.manager.last_name,
                                                           order_object.category2.category1.manager.first_name,
                                                           task.id)
         }

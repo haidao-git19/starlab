@@ -1,59 +1,62 @@
 # coding:utf8
 __author__ = 'yuan.gao'
-import urllib, urllib2
-import json, time
-from urllib2 import URLError
+import requests
+import json
 
 
 class DingDing:
     def __init__(self):
+        #
         self.url = 'https://oapi.dingtalk.com/gettoken?corpid=ding7dd0fd2e5b257e6e&corpsecret=9QzGezdj8HDwNLrZDE2Bx2dq6ckrN1rsvH0hDtuUPcuEYi_65P6HIS9hEZNN1zxb'
         self.header = {"Content-Type":"application/json"}
-        self.authID = self.get_token()
-
-    def get_token(self):
-        request = urllib2.Request(self.url)
-        for key in self.header:
-            request.add_header(key, self.header[key])
-        try:
-            result = urllib2.urlopen(request)
-        except URLError as e:
-            print "\033[041m 出错:\033[0m", e
+        # 获取cookie
+        r = requests.get(self.url)
+        if r.status_code == 200:
+            if r.json()['access_token']:
+                self.access_token = r.json()['access_token']
+            else:
+                raise Exception('Error from source %s' % r.text)
         else:
-            response = json.loads(result.read())
-            result.close()
-#            self.authID = response['result']
-            authID = response['access_token']
-            return authID
+            raise Exception('Error from source %s' % r.text)
 
     def send_link_message(self, ddID, json_content):
-        # message = '[%s]\n%s' % (time.strftime('%Y%m%d %H:%M:%S'))
+        """
+        :param ddID: 用户ID号,格式为UserID1|UserID2|UserID3
+        :param json_content: 字典,4个值,缺一不可
+            例如:
+            {
+                "title": "审批加签",
+                "text": "你被加签到一个变更审批:{}\n任务ID:{}".format(task.itemId.itemName, task.id),
+                "picUrl": "@lALOACZwe2Rk",
+                "messageUrl": url,
+            }
+        :return:
+            成功:
+            {
+                "errcode":0,
+                "errmsg":"ok",
+                "invalidparty":"",
+                "invaliduser":""
+            }
+        """
         data = {
             "touser":ddID,
             "agentid":"4162046",
             "msgtype":"link",
             "link":json_content
         }
-        print data
-        requrl = 'https://oapi.dingtalk.com/message/send?access_token=' + self.authID
-        quoteUrl=urllib.quote_plus(requrl, safe=':\'/?&=()')
-        postData = json.dumps(data)
-        req = urllib2.Request(url=quoteUrl, data=postData)
-        req.add_header('Content-type', 'application/json')
-        try:
-            res_data = urllib2.urlopen(req)
-        except URLError as e:
-            print "\033[041m 出错:\033[0m", e
-        else:
-            res = res_data.read()
-#       print res
+        url = 'https://oapi.dingtalk.com/message/send?access_token=' + self.access_token
+        data = json.dumps(data)
+        r = requests.post(url, data=data, headers={'content-type': 'application/json'})
+        print r.text
+
 
 if __name__ == "__main__":
     dd = DingDing()
-    jsonmsg = {
-        "title": "asd",
-        "text": "asdsdads",
+    data = {
+        "title": "审批加签",
+        "text": "test",
         "picUrl": "@lALOACZwe2Rk",
-        "messageUrl": "http://s.dingtalk.com/market/dingtalk/error_code.php",
+        "messageUrl": 'https://www.baidu.com',
     }
-    dd.send_link_message(ddID='yuan.gao', json_content=jsonmsg)
+    dd.send_link_message(ddID='yuan.gao|zilu.yb', json_content=data)

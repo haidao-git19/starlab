@@ -17,7 +17,7 @@ import time
 
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
-from .DingDing import DingDing
+from DingDing import DingDing
 
 from django.db.models import Q
 

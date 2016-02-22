@@ -9,7 +9,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 import time
 from django import forms
-from .DingDing import DingDing
+from DingDing import DingDing
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth.models import User, Group

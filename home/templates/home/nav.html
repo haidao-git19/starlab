@@ -15,14 +15,23 @@
 
                         <div class="uk-dropdown uk-dropdown-navbar">
                             <ul class="uk-nav uk-nav-navbar">
-                                <li><a href="{% url "amap:index" %}">站点监测</a></li>
-                                <li><a href="http://123.56.11.67:8000/station/">运维管理</a></li>
+                                <li><a href="{% url "amap:index" %}"><i class="uk-icon-map"></i> 站点监测</a></li>
+                                <li><a href="http://123.56.11.67:8000/station/"><i class="uk-icon-line-chart"></i> 运维管理</a></li>
                             </ul>
                         </div>
                     </li>
                     <li class=""><a onclick="error()"><i class="uk-icon-sitemap"></i> 发布系统</a></li>
                     <li class=""><a><i class="uk-icon-pie-chart"></i> 报表系统</a></li>
-                    <li class=""><a href="{% url "workflow:item-list" %}"><i class="uk-icon-street-view"></i> 流程</a></li>
+                    <li class="uk-parent" data-uk-dropdown="">
+                        <a href=""><i class="uk-icon-street-view"></i> 流程</a>
+
+                        <div class="uk-dropdown uk-dropdown-navbar">
+                            <ul class="uk-nav uk-nav-navbar">
+                                <li><a href="{% url "workflow:item-list" %}"><i class="uk-icon-check-circle-o"></i> 变更管理</a></li>
+                                <li><a href="{% url "workorder:category-list" %}"><i class="uk-icon-users"></i> 工单管理</a></li>
+                            </ul>
+                        </div>
+                    </li>
                     {% if current_page == "home-index" %}
                         <li class="uk-parent uk-active" data-uk-dropdown="">
                             <a href="" class="uk-text-bold"><i class="uk-icon-inbox"></i> 其他平台</a>

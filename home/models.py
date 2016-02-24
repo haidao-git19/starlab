@@ -12,6 +12,7 @@ class Website(models.Model):
     img = models.ImageField(upload_to='img', verbose_name=u"配图(注意比例)")
     description = models.CharField(max_length=100, verbose_name=u"描述")
     owner = models.ForeignKey("auth.User", verbose_name=u"管理员")
+    views = models.IntegerField(default=0)
 
     def __unicode__(self):
         return self.name

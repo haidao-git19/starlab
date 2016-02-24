@@ -23,7 +23,7 @@
                         <div class="uk-grid uk-grid-small" >
                             {% for website in object_list %}
                             <div class="uk-width-small-1-2 uk-width-medium-{{ row }} uk-margin-top uk-animation-scale-up">
-                                <a class="uk-thumbnail uk-overlay-hover" target="_blank" href="{{ website.url }}">
+                                <a class="uk-thumbnail uk-overlay-hover" target="_blank" href="{% url "home:goto" %}?page_id={{website.id}}">
                                     <figure class="uk-overlay">
                                         <img class="uk-overlay-spin"  src="{% static website.img %}" alt="300x110" data-src="holder.js/300x110/auto" data-holder-rendered="true">
                                         <div class="uk-overlay-panel uk-overlay-background uk-overlay-fade uk-text-break uk-text-contrast" >{{ website.description }}</div>

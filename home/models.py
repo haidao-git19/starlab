@@ -25,5 +25,5 @@ class Website(models.Model):
 
 
 class WebsiteAdmin(admin.ModelAdmin):
-    list_display = ('name', 'url', 'order', 'description', 'owner')
+    list_display = ('name', 'url', 'order', 'description', 'owner', 'views')
 admin.site.register(Website, WebsiteAdmin)

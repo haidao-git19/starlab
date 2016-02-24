@@ -61,6 +61,7 @@
             margin-right: 6px;
         }
     </style>
+    <script type="text/javascript" src="{% static "js/jquery-1.11.2.js" %}"></script>
     <script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=f9f0aedecf4a69390a96a3d62f80e988"></script>
     <script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>
 </head>
@@ -131,64 +132,135 @@
     };
 {#    console.log([test.fields.latitude, test.fields.longitude]);#}
     // 所有基站
-    var all = {{ data|safe }};
-    console.log(all.length);
-    // 格式化成高德javascriptapi接受的参数
-    function addMarker(){
-{#        map.clearMap();#}
-        for (var p = 0; p < all.length; p++){
-            //添加marker标记
-            var image_path ='';
-            if(all[p].fields.category_id==1 && all[p].fields.state==1){
-                image_path = '{% static "img/map/new0215/yuan_flash3.gif" %}';
+{#    var all = {{ data|safe }};#}
+{#    console.log(all);#}
+{#    console.log(all.length);#}
+    function load_point(){
+        $.ajax({
+            url:'{% url "amap:get_all_points" %}',
+            type: 'get',
+            dataType: 'json',
+            success: function(data){
+                var all = $.parseJSON(data);
+                // 格式化成高德javascriptapi接受的参数
+                function addMarker(){
+                    {#        map.clearMap();#}
+                    for (var p = 0; p < all.length; p++){
+                        //添加marker标记
+                        var image_path ='';
+                        // all[p].fields={};
+                        if(all[p].fields.category_id==1 && all[p].fields.state==1){
+                            image_path = '{% static "img/map/new0215/yuan_flash3.gif" %}';
+                        }
+                        else if(all[p].fields.category_id==1 && all[p].fields.state==0){
+                            image_path = '{% static "img/map/Point_Red.png" %}';
+                        }
+                        else if(all[p].fields.category_id==2 && all[p].fields.state==1){
+                            {#            image_path = '{% static "img/map/S_point_Green01.png" %}';#}
+                            image_path = '{% static "img/map/new0215/kongyuan_flash.gif" %}';
+                        }
+                        else if(all[p].fields.category_id==2 && all[p].fields.state==0){
+                            image_path = '{% static "img/map/S_Point_Red01.png" %}';
+                        }
+                        else if(all[p].fields.category_id==3 && all[p].fields.state==1){
+                            {#            image_path = '{% static "img/map/Control_Point_Green.png" %}';#}
+                            image_path = '{% static "img/map/new0215/sanjiao_flash.gif" %}';
+                        }
+                        else if(all[p].fields.category_id==3 && all[p].fields.state==0){
+                            image_path = '{% static "img/map/Control_Point_RED.png" %}';
+                        }
+                        try {
+                            marker = new AMap.Marker({
+                                position: [all[p].fields.latitude, all[p].fields.longitude],
+                                map: map,
+                                icon: new AMap.Icon({
+                                    image: image_path,
+                                    {#                image: 'http://www.easyicon.net/api/resizeApi.php?id=1061216&size=128',#}
+                                    imageSize: new AMap.Size(8, 8)
+                                })
+                            });
+                        }
+                        catch(e){
+                            alert("此页面有一个错误:\n"+e)
+                        }
+                        {#            console.log([all[p].fields.latitude, all[p].fields.longitude]);#}
+                        marker.state = all[p].fields.state;
+                        marker.category_id = all[p].fields.category_id;
+                        marker.rec_sn = all[p].fields.rec_sn;
+                        marker.station_cnname = all[p].fields.station_cnname;
+                        marker.station_ip = all[p].fields.station_ip;
+                        marker.sat_num = all[p].fields.sat_num;
+                        marker.ant_angle = all[p].fields.ant_angle;
+                        marker.real_time = all[p].fields.real_time;
+                        marker.station_code = all[p].fields.station_code;
+                        marker.rec_type = all[p].fields.rec_type;
+                        marker.device_type = all[p].fields.device_type;
+                        marker.on('click', markerClick);
+                    }
+                }
+                addMarker();
             }
-            else if(all[p].fields.category_id==1 && all[p].fields.state==0){
-                image_path = '{% static "img/map/Point_Red.png" %}';
-            }
-            else if(all[p].fields.category_id==2 && all[p].fields.state==1){
-    {#            image_path = '{% static "img/map/S_point_Green01.png" %}';#}
-                image_path = '{% static "img/map/new0215/kongyuan_flash.gif" %}';
-            }
-            else if(all[p].fields.category_id==2 && all[p].fields.state==0){
-                image_path = '{% static "img/map/S_Point_Red01.png" %}';
-            }
-            else if(all[p].fields.category_id==3 && all[p].fields.state==1){
-    {#            image_path = '{% static "img/map/Control_Point_Green.png" %}';#}
-                image_path = '{% static "img/map/new0215/sanjiao_flash.gif" %}';
-            }
-            else if(all[p].fields.category_id==3 && all[p].fields.state==0){
-                image_path = '{% static "img/map/Control_Point_RED.png" %}';
-            }
-            try {
-                marker = new AMap.Marker({
-                    position: [all[p].fields.latitude, all[p].fields.longitude],
-                    map: map,
-                    icon: new AMap.Icon({
-                        image: image_path,
-                        {#                image: 'http://www.easyicon.net/api/resizeApi.php?id=1061216&size=128',#}
-                        imageSize: new AMap.Size(8, 8)
-                    })
-                });
-            }
-            catch(e){
-                alert("此页面有一个错误:\n"+e)
-            }
-{#            console.log([all[p].fields.latitude, all[p].fields.longitude]);#}
-            marker.state = all[p].fields.state;
-            marker.category_id = all[p].fields.category_id;
-            marker.rec_sn = all[p].fields.rec_sn;
-            marker.station_cnname = all[p].fields.station_cnname;
-            marker.station_ip = all[p].fields.station_ip;
-            marker.sat_num = all[p].fields.sat_num;
-            marker.ant_angle = all[p].fields.ant_angle;
-            marker.real_time = all[p].fields.real_time;
-            marker.station_code = all[p].fields.station_code;
-            marker.rec_type = all[p].fields.rec_type;
-            marker.device_type = all[p].fields.device_type;
-            marker.on('click', markerClick);
-        }
+
+        });
     }
-    addMarker();
+    load_point();
+{#    window.setInterval("map.clearMap();load_point();",10000);#}
+    // 格式化成高德javascriptapi接受的参数
+{#    function addMarker(){#}
+{#        map.clearMap();#}
+{#        for (var p = 0; p < all.length; p++){#}
+{#            //添加marker标记#}
+{#            var image_path ='';#}
+{#            if(all[p].fields.category_id==1 && all[p].fields.state==1){#}
+{#                image_path = '{% static "img/map/new0215/yuan_flash3.gif" %}';#}
+{#            }#}
+{#            else if(all[p].fields.category_id==1 && all[p].fields.state==0){#}
+{#                image_path = '{% static "img/map/Point_Red.png" %}';#}
+{#            }#}
+{#            else if(all[p].fields.category_id==2 && all[p].fields.state==1){#}
+    {#            image_path = '{% static "img/map/S_point_Green01.png" %}';#}
+{#                image_path = '{% static "img/map/new0215/kongyuan_flash.gif" %}';#}
+{#            }#}
+{#            else if(all[p].fields.category_id==2 && all[p].fields.state==0){#}
+{#                image_path = '{% static "img/map/S_Point_Red01.png" %}';#}
+{#            }#}
+{#            else if(all[p].fields.category_id==3 && all[p].fields.state==1){#}
+    {#            image_path = '{% static "img/map/Control_Point_Green.png" %}';#}
+{#                image_path = '{% static "img/map/new0215/sanjiao_flash.gif" %}';#}
+{#            }#}
+{#            else if(all[p].fields.category_id==3 && all[p].fields.state==0){#}
+{#                image_path = '{% static "img/map/Control_Point_RED.png" %}';#}
+{#            }#}
+{#            try {#}
+{#                marker = new AMap.Marker({#}
+{#                    position: [all[p].fields.latitude, all[p].fields.longitude],#}
+{#                    map: map,#}
+{#                    icon: new AMap.Icon({#}
+{#                        image: image_path,#}
+                        {#                image: 'http://www.easyicon.net/api/resizeApi.php?id=1061216&size=128',#}
+{#                        imageSize: new AMap.Size(8, 8)#}
+{#                    })#}
+{#                });#}
+{#            }#}
+{#            catch(e){#}
+{#                alert("此页面有一个错误:\n"+e)#}
+{#            }#}
+{#            console.log([all[p].fields.latitude, all[p].fields.longitude]);#}
+{#            marker.state = all[p].fields.state;#}
+{#            marker.category_id = all[p].fields.category_id;#}
+{#            marker.rec_sn = all[p].fields.rec_sn;#}
+{#            marker.station_cnname = all[p].fields.station_cnname;#}
+{#            marker.station_ip = all[p].fields.station_ip;#}
+{#            marker.sat_num = all[p].fields.sat_num;#}
+{#            marker.ant_angle = all[p].fields.ant_angle;#}
+{#            marker.real_time = all[p].fields.real_time;#}
+{#            marker.station_code = all[p].fields.station_code;#}
+{#            marker.rec_type = all[p].fields.rec_type;#}
+{#            marker.device_type = all[p].fields.device_type;#}
+{#            marker.on('click', markerClick);#}
+{#        }#}
+{#    }#}
+{#    addMarker();#}
 {#    window.setInterval(#}
 {#        location.reload(),#}
 {#        5000#}

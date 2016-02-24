@@ -120,7 +120,7 @@ class Task(models.Model):
     order = models.ForeignKey('workorder.Order', related_name='taskorder')
     actor = models.ForeignKey("workorder.Actor", related_name='taskactor')
     operator = models.ForeignKey('auth.User', null=True, blank=True, related_name='taskoperator')
-    version = models.CharField(max_length=5000) # 记录流转过程
+    version = models.TextField(max_length=5000) # 记录流转过程
     state = models.IntegerField(choices=TASK_STATE_CHOICES, default=0, verbose_name="状态")
     added = models.DateTimeField(auto_now_add=True)
 

@@ -105,15 +105,15 @@ class TaskListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(TaskListView, self).get_context_data(**kwargs)
         context['current_page'] = "workorder-task-list"
-        # 待分发任务列表/在前端区分任务状态
-        caus = CurrentActorUser.objects.filter(name=self.request.user)
-        task_list = []
-        for cau in caus:
-            if cau.task.state == 2:
-                task_list.append(cau.task)
-        print task_list
-        context['task_list'] = task_list
-        # context['task_list'] = Task.objects.filter(order__category2__category1__manager=self.request.user)
+        # 待分发任务列表-在前端区分任务状态
+        # caus = CurrentActorUser.objects.filter(name=self.request.user)
+        # task_list = []
+        # for cau in caus:
+        #     if cau.task.state == 2:
+        #         task_list.append(cau.task)
+        # print task_list
+        # context['task_list'] = task_list
+        context['task_list'] = Task.objects.filter(order__category2__category1__manager=self.request.user)
         # 待审批任务
         context['current_actor_users'] = CurrentActorUser.objects.filter(name=self.request.user)
         category1_objects = Category1.objects.filter(manager=self.request.user)
@@ -161,18 +161,7 @@ def createTask(request):
         # 第一步流程与获得的申请人主管结合成一个审批实体
         rout_object = get_object_or_404(Rout, id=order_object.rout.id)
         actor_object1 = get_object_or_404(Actor, rout=rout_object, sort='1')
-        actor_object2 = get_object_or_404(Actor, rout=rout_object, sort='2')
-        # 创建工单对应任务
-        task = Task.objects.create(name='任务:{}-({}{})'.format(order_object.purpose,
-                                                              request.user.last_name,
-                                                              request.user.first_name),
-                                   order=order_object,
-                                   actor=actor_object1,
-                                   state=1,
-                                   version='[{}]{}{}发起申请\n'.format(time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
-                                                               request.user.last_name,
-                                                               request.user.first_name)
-                                   )
+        # actor_object2 = get_object_or_404(Actor, rout=rout_object, sort='2')
         # 获得申请人主管
         proposer_group = Group.objects.none()
         proposer_groups = order_object.owner.groups.all()
@@ -194,13 +183,25 @@ def createTask(request):
 
         catogory_manager = order_object.category2.category1.manager
         if catogory_manager:
-            queryset_list.append(CurrentActorUser(task=task, name=catogory_manager, actor=actor_object2))
+            pass
+            # queryset_list.append(CurrentActorUser(task=task, name=catogory_manager, actor=actor_object2))
         else:
             data = {
-                'return': "此工单类主管未设定,请联系管理员"
+                'return': "所选工单类主管未设定或者未开始服务,请联系管理员"
             }
             return JsonResponse(data, status=400)
 
+        # 创建工单对应任务
+        task = Task.objects.create(name='任务:{}-({}{})'.format(order_object.purpose,
+                                                              request.user.last_name,
+                                                              request.user.first_name),
+                                   order=order_object,
+                                   actor=actor_object1,
+                                   state=1,
+                                   version='[{}]{}{}发起申请\n'.format(time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                                                               request.user.last_name,
+                                                               request.user.first_name)
+                                   )
         # 创建当前审批人与流程和任务绑定
         queryset_list.append(CurrentActorUser(task=task, name=porposer_manager, actor=actor_object1))
         # queryset_list.append(CurrentActorUser(task=task, name=porposer_manager, actor=actor_object2))
@@ -251,27 +252,42 @@ def agree(request):
     rout_in_use = task_object.order.rout
     # 流程模板有几个步骤
     actor_count = Actor.objects.filter(rout=rout_in_use).count()
-    # 如果当前步骤的sort和count相同说明审批的流程已经
+    # 如果当前步骤的sort和count相同说明审批的流程已经结束,任务状态和工单状态均改变为分发2
+    if task_object.actor.sort == actor_count:
+        task_object.state = 2 # 审批结束
+        task_object.version += "[{}]{}{}审批通过并备注:{}\n".format(time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                                             request.user.last_name,
+                                             request.user.first_name,
+                                             comment)
+        task_object.save() # debug了很久,我居然忘记了save -.-
+        order_object = task_object.order
+        order_object.comment = comment
+        order_object.state = 2 # 审批结束
+        order_object.save()
+        # --------------------- ding -------------------------------------------------------------------------
+        dd = DingDing()
+        category_manager = order_object.category2.category1.manager
+        id = category_manager.username
+        url = request.build_absolute_uri(reverse('workorder:list-task'))
+        jsonmsg = {
+            "title": "您的组收到一个工单,请分发(申请人:{}{}).".format(order_object.owner.last_name, order_object.owner.first_name),
+            "text": "{}".format(order_object.purpose),
+            "picUrl": "@lALOACZwe2Rk",
+            "messageUrl": url,
+        }
+        dd.send_link_message(ddID=id, json_content=jsonmsg)
+        # --------------------- ding -------------------------------------------------------------------------
 
-
-    # 拿到所有步骤
-    actors = Actor.objects.filter(task=task_object)
-
-    task_object.state = 2 # 审批结束
-    task_object.version += "[{}]{}{}审批通过并备注:{}\n".format(time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
-                                         request.user.last_name,
-                                         request.user.first_name,
-                                         comment)
-    task_object.save() # debug了很久,我居然忘记了save -.-
-    order_object = task_object.order
-    order_object.comment = comment
-    order_object.state = 2 # 审批结束
-    order_object.save()
-    data = {
-        'return': '成功:已通知类别主管分发工单,ID:{}'.format(order_object.name),
-        'id': taskid
-    }
-    return JsonResponse(data, status=200)
+        # 删除临时审批表里此任务的条目
+        CurrentActorUser.objects.filter(task=task_object).all().delete()
+        data = {
+            'return': '成功:已通知类别主管({}{})分发工单,ID:{}'.format(category_manager.last_name, category_manager.first_name, order_object.name),
+            'id': taskid
+        }
+        return JsonResponse(data, status=200)
+    else:
+        # TODO
+        pass
 
 @csrf_exempt
 def disagree(request):
@@ -293,7 +309,6 @@ def dispense(request):
     task = get_object_or_404(Task, id=task_id)
     order = task.order
     order.state = 3
-    order.save()
     if id:
         user = get_object_or_404(User, id=id)
         task.version += "[{}]由{}{}分发给{}{}\n".format(time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
@@ -304,6 +319,18 @@ def dispense(request):
         task.operator = user
         task.state = 3 # 实施中
         task.save()
+        # --------------------- ding -------------------------------------------------------------------------
+        dd = DingDing()
+        id = user.username
+        url = request.build_absolute_uri(reverse('workorder:list-task-engineer'))
+        jsonmsg = {
+            "title": "收到一个任务.(分发人:{}{})".format(request.user.last_name, request.user.first_name),
+            "text": "{}".format(order.purpose),
+            "picUrl": "@lALOACZwe2Rk",
+            "messageUrl": url,
+        }
+        dd.send_link_message(ddID=id, json_content=jsonmsg)
+        # --------------------- ding -------------------------------------------------------------------------
         data = {
             'user_name': "{}{}".format(user.last_name, user.first_name),
             'status': 200,
@@ -313,6 +340,7 @@ def dispense(request):
             'status': 400,
             'error': '不能为空',
         }
+    order.save()
     return JsonResponse(data, status=200)
 
 @csrf_exempt
@@ -321,7 +349,7 @@ def complete(request):
     comment = request.POST.get('comment')
     if comment:
         task_object = get_object_or_404(Task, id=taskid)
-        task_object.version += "[{}]由{}{}完成并备注:{}\n".format(time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+        task_object.version += "[{}]由{}{}完成并备注:{}".format(time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
                                          request.user.last_name,
                                          request.user.first_name,
                                          comment)
@@ -331,6 +359,18 @@ def complete(request):
         order_object.comment = comment
         order_object.state = 4
         order_object.save()
+        # --------------------- ding -------------------------------------------------------------------------
+        dd = DingDing()
+        id = order_object.owner.username
+        url = request.build_absolute_uri(reverse('workorder:order-list-user'))
+        jsonmsg = {
+            "title": "恭喜:你的工单已被操作(操作人:{}{})".format(request.user.last_name, request.user.first_name),
+            "text": "结果:{}".format(comment),
+            "picUrl": "@lALOACZwe2Rk",
+            "messageUrl": url,
+        }
+        dd.send_link_message(ddID=id, json_content=jsonmsg)
+        # --------------------- ding -------------------------------------------------------------------------
         data = {
             'return': '任务结束,ID:{}'.format(taskid)
         }

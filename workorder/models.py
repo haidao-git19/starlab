@@ -65,7 +65,7 @@ class CurrentActorUser(models.Model):
     state = models.NullBooleanField(default=None)
 
     def __unicode__(self):
-        return str(self.name)
+        return "{}-{}".format(self.name, self.task.state)
 
     class Meta:
         verbose_name = "当前步骤处理人"

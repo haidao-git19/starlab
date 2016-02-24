@@ -115,14 +115,13 @@ class TaskListView(ListView):
         context['task_list'] = task_list
         # context['task_list'] = Task.objects.filter(order__category2__category1__manager=self.request.user)
         # 待审批任务
-        # TODO
         context['current_actor_users'] = CurrentActorUser.objects.filter(name=self.request.user)
         category1_objects = Category1.objects.filter(manager=self.request.user)
         print category1_objects
         group_name = []
         for category1_object in category1_objects:
             group_name.append(category1_object.group.name)
-        print group_name
+        context['group_name'] = group_name
         class GroupUserForm(forms.Form):
             users = forms.ModelChoiceField(
                 queryset=User.objects.filter(groups__name__in=group_name).all().distinct(),
@@ -162,7 +161,7 @@ def createTask(request):
         # 第一步流程与获得的申请人主管结合成一个审批实体
         rout_object = get_object_or_404(Rout, id=order_object.rout.id)
         actor_object1 = get_object_or_404(Actor, rout=rout_object, sort='1')
-        # actor_object2 = get_object_or_404(Actor, rout=rout_object, sort='2')
+        actor_object2 = get_object_or_404(Actor, rout=rout_object, sort='2')
         # 创建工单对应任务
         task = Task.objects.create(name='任务:{}-({}{})'.format(order_object.purpose,
                                                               request.user.last_name,
@@ -177,13 +176,32 @@ def createTask(request):
         # 获得申请人主管
         proposer_group = Group.objects.none()
         proposer_groups = order_object.owner.groups.all()
+
+
+        queryset_list = []
+
         for pg in proposer_groups:
             proposer_group = pg
             break
-        porposer_manager = get_object_or_404(ProposerManager, group=proposer_group).user
+        print proposer_group
+        try:
+            porposer_manager = get_object_or_404(ProposerManager, group=proposer_group).user
+        except Exception, e:
+            data = {
+                'return': "您的主管未设定,请联系管理员\n({})".format(str(e))
+            }
+            return JsonResponse(data, status=400)
+
+        catogory_manager = order_object.category2.category1.manager
+        if catogory_manager:
+            queryset_list.append(CurrentActorUser(task=task, name=catogory_manager, actor=actor_object2))
+        else:
+            data = {
+                'return': "此工单类主管未设定,请联系管理员"
+            }
+            return JsonResponse(data, status=400)
 
         # 创建当前审批人与流程和任务绑定
-        queryset_list = []
         queryset_list.append(CurrentActorUser(task=task, name=porposer_manager, actor=actor_object1))
         # queryset_list.append(CurrentActorUser(task=task, name=porposer_manager, actor=actor_object2))
         CurrentActorUser.objects.bulk_create(queryset_list)
@@ -205,14 +223,14 @@ def createTask(request):
         url = request.build_absolute_uri(reverse('workorder:list-task'))
         jsonmsg = {
             "title": "您的组员({}{})有一个工单需要审批".format(order_object.owner.last_name, order_object.owner.first_name),
-            "text": "内容:{}".format(order_object.purpose),
+            "text": "{}".format(order_object.purpose),
             "picUrl": "@lALOACZwe2Rk",
             "messageUrl": url,
         }
         dd.send_link_message(ddID=id, json_content=jsonmsg)
         # --------------------- ding -------------------------------------------------------------------------
         data = {
-            'return': '任务已创建并通知您的主管({}{}),任务ID:{}'.format(order_object.category2.category1.manager.last_name,
+            'return': '任务已创建并通知您的主管({}{})审批,任务ID:{}'.format(order_object.category2.category1.manager.last_name,
                                                           order_object.category2.category1.manager.first_name,
                                                           task.id)
         }
@@ -227,7 +245,18 @@ def createTask(request):
 def agree(request):
     taskid = request.POST.get('taskid')
     comment = request.POST.get('comment')
+
     task_object = get_object_or_404(Task, id=taskid)
+    # 通过任务拿到表单再拿到所用流程模板
+    rout_in_use = task_object.order.rout
+    # 流程模板有几个步骤
+    actor_count = Actor.objects.filter(rout=rout_in_use).count()
+    # 如果当前步骤的sort和count相同说明审批的流程已经
+
+
+    # 拿到所有步骤
+    actors = Actor.objects.filter(task=task_object)
+
     task_object.state = 2 # 审批结束
     task_object.version += "[{}]{}{}审批通过并备注:{}\n".format(time.strftime(u'%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
                                          request.user.last_name,
@@ -236,10 +265,10 @@ def agree(request):
     task_object.save() # debug了很久,我居然忘记了save -.-
     order_object = task_object.order
     order_object.comment = comment
-    order_object.state = 2
+    order_object.state = 2 # 审批结束
     order_object.save()
     data = {
-        'return': '成功:已通知主管分发工单,ID:{}'.format(order_object.name),
+        'return': '成功:已通知类别主管分发工单,ID:{}'.format(order_object.name),
         'id': taskid
     }
     return JsonResponse(data, status=200)

@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block content %}
-<h4 class="tm-article-subtitle uk-text-bold">待分发任务列表</h4>
+{% for i in group_name %} <span class="uk-badge uk-badge-warning uk-float-right">{{ i }}</span> {% endfor %}<h4 class="tm-article-subtitle uk-text-bold">待分发任务列表</h4>
     {% for task in task_list %}
         <div class="uk-panel uk-panel-box uk-panel-box-primary uk-text-center-small">
             <div class="uk-panel-badge uk-badge uk-badge">创建于{{ task.added|timesince }}前</div>

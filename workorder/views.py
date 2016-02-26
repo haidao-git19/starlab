@@ -231,8 +231,8 @@ def createTask(request):
         dd.send_link_message(ddID=id, json_content=jsonmsg)
         # --------------------- ding -------------------------------------------------------------------------
         data = {
-            'return': '任务已创建并通知您的主管({}{})审批,任务ID:{}'.format(order_object.category2.category1.manager.last_name,
-                                                          order_object.category2.category1.manager.first_name,
+            'return': '任务已创建并通知您的主管({}{})审批,任务ID:{}'.format(porposer_manager.last_name,
+                                                          porposer_manager.first_name,
                                                           task.id)
         }
         return JsonResponse(data, status=200)

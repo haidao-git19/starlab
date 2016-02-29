@@ -3,5 +3,5 @@
 db.*
 .DS_Store
 starlab/secrit_config.py
-DingDing/*
-static/json/*
+DingDing/*.*
+static/json/*.*

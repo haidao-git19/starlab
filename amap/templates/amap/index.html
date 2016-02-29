@@ -195,6 +195,10 @@
                         marker.station_code = all[p].fields.station_code;
                         marker.rec_type = all[p].fields.rec_type;
                         marker.device_type = all[p].fields.device_type;
+                        marker.station_pm = all[p].fields.station_pm;
+                        marker.station_agent_owner = all[p].fields.station_agent_owner;
+                        marker.station_agent_contact = all[p].fields.station_agent_contact;
+                        //marker.station_industry = all[p].fields.station_industry;
                         marker.on('click', markerClick);
                     }
                 }
@@ -304,6 +308,10 @@
         content.push("卫星数: " + e.target.sat_num);
         content.push("高度角: " + e.target.ant_angle);
         content.push("数据时间: " + e.target.real_time);
+        content.push("项目PM: " + e.target.station_pm);
+        content.push("代维人员: " + e.target.station_agent_owner);
+        content.push("代维电话: " + e.target.station_agent_contact);
+        //content.push("行业: " + e.target.station_industry);
         if(e.target.state==0){
             content.push("状态: " + "<span style='color:red'>离线</span>");
         }

@@ -15,23 +15,27 @@ class AmapIndexView(ListView):
     def get_context_data(self, **kwargs):
         context = super(AmapIndexView, self).get_context_data(**kwargs)
         querysets = Receiver.objects.using('stationdb').filter(enabled=1)
-        # data = serializers.serialize('json', querysets, fields=(
-        #     'state',
-        #     'latitude',
-        #     'longitude',
-        #     'category_id',
-        #     'rec_sn',
-        #     'station_cnname',
-        #     'station_ip',
-        #     'sat_num',
-        #     'ant_angle',
-        #     'real_time',
-        #     'station_code',
-        #     'rec_type',
-        #     'device_type',
-        #     ),
-        # )
-        # context['data'] = data
+        data = serializers.serialize('json', querysets, fields=(
+            'state',
+            'latitude',
+            'longitude',
+            'category_id',
+            'rec_sn',
+            'station_cnname',
+            'station_ip',
+            'sat_num',
+            'ant_angle',
+            'real_time',
+            'station_code',
+            'rec_type',
+            'device_type',
+            'station_pm',
+            'station_agent_owner',
+            'station_agent_contact',
+            'station_industry',
+            ),
+        )
+        context['data'] = data
         context['num'] = querysets.count()
         context['num1'] = querysets.filter(category_id=1, state=1).count()
         context['num2'] = querysets.filter(category_id=1, state=0).count()
@@ -60,6 +64,10 @@ def get_all_points(request):
         'station_code',
         'rec_type',
         'device_type',
+        'station_pm',
+        'station_agent_owner',
+        'station_agent_contact',
+        'station_industry',
         ),
     )
     return JsonResponse(data, status=200, safe=False)

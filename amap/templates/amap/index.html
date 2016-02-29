@@ -64,8 +64,6 @@
     <script type="text/javascript" src="{% static "js/jquery-1.11.2.js" %}"></script>
     <script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=f9f0aedecf4a69390a96a3d62f80e988"></script>
     <script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>
-    <script type="text/javascript" src="{% static "js/stationJS/StationMap_yuAn.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/stationJS/MapUtils.js" %}"></script>
 </head>
 <body>
 <div id="container"></div>
@@ -93,188 +91,14 @@
     <div>Total Station: {{ num }}</div>
 </div>
 <script type="text/javascript">
-    var StationMap = {};
-    StationMap.init = function () {
-        this.createMap();
-        //this.getData();
-        //this.autoUpdate();
-    };
-    StationMap.createMap= function () {
-        var map = new AMap.Map('container', {
-            resizeEnable: true,
-            center: [106.917797,37.811887],
-            zoom: 5,
-            mapStyle: 'blue_night',
-            features: ["bg", "road", "building", "point"]
-        });
-        //var toolBar = new AMap.ToolBar({
-        //    visible: true
-        //});
-        //map.addControl(toolBar);
-        map.on("complete", completeEventHandler);
-
-        this.map=map;
-
-        var thisRef=this;
-        function completeEventHandler() {
-            //map.setMapStyle("blue_night");
-            thisRef.getData();
-        }
-    };
-
-    StationMap.getData = function () {
-        var thisRef = this;
-        //$.ajax({
-        //    //url: 'mockservice/apiResult' + Math.round(Math.random()) + '.json',
-        //    //url:stationMapConfig.apiUrl,
-        //    //url: "{% static 'json/stationResult.json' %}",
-        //    url: "http://127.0.0.1:8000/static/json/stationResult.json",
-        //    success: function (data) {
-        //        console.log(data);
-        //        thisRef.addStations(data.data.stations);
-        //    },
-        //    error: function (XMLHttpRequest, textStatus, errorThrown) {
-        //        console.log(textStatus);
-        //    }
-        //});
-        $.ajax({
-            //url: 'mockservice/apiResult' + Math.round(Math.random()) + '.json',
-            //url:stationMapConfig.apiGridUrl,
-            //url:"http://crystal.wz-inc.com/js/stationResult.json",
-            url:"{% static 'json/stationResult.json' %}",
-            //url:"{% static 'json/stationResult.json' %}",
-            data: {},
-            success: function (data) {
-                console.log(data.data.grid);
-                var lngLats=MapUtils.coord2DStrToLngLats(data.data.grid.join(","));
-                console.log(lngLats);
-                thisRef.addGrids(lngLats);
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                console.log(textStatus);
-            }
-        });
-    };
-    StationMap.renderData = function (data) {
-        this.addStations(data.stations);
-        var lngLats=MapUtils.coord2DStrToLngLats(data.grid.join(","));
-        //this.drawGridLine(lngLats);
-        this.addGrids(lngLats);
-        //地图自适应
-    /*    var map =this.map;
-        //map.setFitView();
-        var bounds=new AMap.Bounds(new AMap.LngLat(76.245004,16.590842), new AMap.LngLat(139.526254,49.006833));
-        map.setBounds(bounds);
-        map.zoomIn();*/
-    };
-    StationMap.addStations=function(data){
-        var arrData=data,vectorPoints=[];//矢量点数组
-        var info={},vectorPoint=null;//每个矢量点的信息
-        for (var i=0,iCount=arrData.length;i<iCount;i++){
-            //获取每个矢量点的信息
-            info=arrData[i];
-             //添加每个矢量点
-            vectorPoint=this.addStation(info);
-            //用于返回矢量点数组
-            vectorPoints.push(vectorPoint);
-        }
-        // 返回矢量点数组
-        return vectorPoints;
-    };
-    StationMap.addStation=function(obj){
-        var map =this.map;
-        obj.imagePath="img/station"+(obj.type||"")+".png";
-        var marker = new AMap.Marker({
-            map: map,
-            position: new AMap.LngLat(obj.lon,obj.lat),
-            icon: new AMap.Icon({image:obj.imagePath,imageSize:new AMap.Size(16,16)}),
-            title:obj.name
-            //label:{content:obj.name},
-            //offset: new AMap.Pixel(-19, -60)//x为图标一半宽度的负值，y为图标高度的负值
-            //autoRotation: true
-        });
-        return marker;
-    };
-    StationMap.getStyleByType=function(type){
-    };
-    StationMap.addGrids=function(points){
-        var point={};
-        for(var i= 0,iCount=points.length;i<iCount;i++){
-            point=points[i];
-            this.drawRect(point);
-        }
-    };
-    //绘制面
-    StationMap.drawArea=function(lngLats){
-        var map =this.map;
-        var  polygon = new AMap.Polygon({
-            path: lngLats,//设置多边形边界路径
-            strokeColor: "#2C64B0", //线颜色
-            strokeOpacity: 0.7, //线透明度
-            strokeWeight: 1,    //线宽
-            fillColor: "#2C64B0", //填充色
-            fillOpacity: 0.7//填充透明度
-        });
-        polygon.setMap(map);
-    };
-    StationMap.drawRect=function(point){
-        var lngLats=[];
-        var lng=point.lng;
-        var lat=point.lat;
-        lngLats.push(new AMap.LngLat(lng-0.1,lat+0.1));
-        lngLats.push(new AMap.LngLat(lng+0.1,lat+0.1));
-        lngLats.push(new AMap.LngLat(lng+0.1,lat-0.1));
-        lngLats.push(new AMap.LngLat(lng-0.1,lat-0.1));
-        this.drawArea(lngLats);
-    };
-
-    //绘制网格线
-    StationMap.drawGridLine=function(points){
-        var map=this.map;
-        //找出维度一样的数据
-        //找出经度一样的数据
-        var pointsObj={},point={},lng=0,lat=0;
-        for(var i= 0,iCount=points.length;i<iCount;i++){
-            point=points[i];
-            lng=point.lng-0.1;
-            lat=point.lat+0.1;
-            pointsObj[lng]=pointsObj[lng]||[];
-            pointsObj[lat]=pointsObj[lat]||[];
-
-            pointsObj[lng].push(point);
-            pointsObj[lat].push(point);
-        }
-        //绘制网格线
-        var subPois=[],lngLats=[],lngLat={};
-        for(var p in pointsObj){
-            subPois=pointsObj[p];
-            lngLats=[];
-            for(var i= 0,iCount=subPois.length;i<iCount;i++){
-                point=subPois[i];
-                lngLat = new AMap.LngLat(point.lng,point.lat);
-                lngLats.push(lngLat);
-            }
-            // 绘制线
-            var polyline = new AMap.Polyline({
-                map: map,
-                path: lngLats,
-                strokeColor: "#FFFC18",  //线颜色
-                strokeOpacity: 0.2,     //线透明度
-                strokeWeight: 2,      //线宽
-                strokeStyle: "solid"  //线样式
-            });
-        }
-    };
-
-    StationMap.init();
 	//地图初始化时，在地图上添加一个marker标记,鼠标点击marker可弹出自定义的信息窗体
-{#    var map = new AMap.Map("container", {#}
-{#        resizeEnable: true,#}
-{#        center: [106.917797,37.811887],#}
-{#        zoom: 5,#}
-{#        mapStyle: 'blue_night',#}
-{#        features: ["bg", "road", "building", "point"]#}
-{#    });#}
+    var map = new AMap.Map("container", {
+        resizeEnable: true,
+        center: [106.917797,37.811887],
+        zoom: 5,
+        mapStyle: 'blue_night',
+        features: ["bg", "road", "building", "point"]
+    });
 {#    initbg = ["bg", "road", "building", "point"];#}
 {#    initbg = ["bg", "building", "point"];#}
 {#    map.setFeatures(initbg);#}
@@ -348,11 +172,11 @@
                         try {
                             marker = new AMap.Marker({
                                 position: [all[p].fields.latitude, all[p].fields.longitude],
-                                map: StationMap.map,
+                                map: map,
                                 icon: new AMap.Icon({
                                     image: image_path,
                                     {#                image: 'http://www.easyicon.net/api/resizeApi.php?id=1061216&size=128',#}
-                                    imageSize: new AMap.Size(6, 6)
+                                    imageSize: new AMap.Size(8, 8)
                                 })
                             });
                         }
@@ -384,6 +208,81 @@
         });
     }
     load_point();
+{#    window.setInterval("map.clearMap();load_point();",10000);#}
+    // 格式化成高德javascriptapi接受的参数
+{#    function addMarker(){#}
+{#        map.clearMap();#}
+{#        for (var p = 0; p < all.length; p++){#}
+{#            //添加marker标记#}
+{#            var image_path ='';#}
+{#            if(all[p].fields.category_id==1 && all[p].fields.state==1){#}
+{#                image_path = '{% static "img/map/new0215/yuan_flash3.gif" %}';#}
+{#            }#}
+{#            else if(all[p].fields.category_id==1 && all[p].fields.state==0){#}
+{#                image_path = '{% static "img/map/Point_Red.png" %}';#}
+{#            }#}
+{#            else if(all[p].fields.category_id==2 && all[p].fields.state==1){#}
+    {#            image_path = '{% static "img/map/S_point_Green01.png" %}';#}
+{#                image_path = '{% static "img/map/new0215/kongyuan_flash.gif" %}';#}
+{#            }#}
+{#            else if(all[p].fields.category_id==2 && all[p].fields.state==0){#}
+{#                image_path = '{% static "img/map/S_Point_Red01.png" %}';#}
+{#            }#}
+{#            else if(all[p].fields.category_id==3 && all[p].fields.state==1){#}
+    {#            image_path = '{% static "img/map/Control_Point_Green.png" %}';#}
+{#                image_path = '{% static "img/map/new0215/sanjiao_flash.gif" %}';#}
+{#            }#}
+{#            else if(all[p].fields.category_id==3 && all[p].fields.state==0){#}
+{#                image_path = '{% static "img/map/Control_Point_RED.png" %}';#}
+{#            }#}
+{#            try {#}
+{#                marker = new AMap.Marker({#}
+{#                    position: [all[p].fields.latitude, all[p].fields.longitude],#}
+{#                    map: map,#}
+{#                    icon: new AMap.Icon({#}
+{#                        image: image_path,#}
+                        {#                image: 'http://www.easyicon.net/api/resizeApi.php?id=1061216&size=128',#}
+{#                        imageSize: new AMap.Size(8, 8)#}
+{#                    })#}
+{#                });#}
+{#            }#}
+{#            catch(e){#}
+{#                alert("此页面有一个错误:\n"+e)#}
+{#            }#}
+{#            console.log([all[p].fields.latitude, all[p].fields.longitude]);#}
+{#            marker.state = all[p].fields.state;#}
+{#            marker.category_id = all[p].fields.category_id;#}
+{#            marker.rec_sn = all[p].fields.rec_sn;#}
+{#            marker.station_cnname = all[p].fields.station_cnname;#}
+{#            marker.station_ip = all[p].fields.station_ip;#}
+{#            marker.sat_num = all[p].fields.sat_num;#}
+{#            marker.ant_angle = all[p].fields.ant_angle;#}
+{#            marker.real_time = all[p].fields.real_time;#}
+{#            marker.station_code = all[p].fields.station_code;#}
+{#            marker.rec_type = all[p].fields.rec_type;#}
+{#            marker.device_type = all[p].fields.device_type;#}
+{#            marker.on('click', markerClick);#}
+{#        }#}
+{#    }#}
+{#    addMarker();#}
+{#    window.setInterval(#}
+{#        location.reload(),#}
+{#        5000#}
+{#    );#}
+{#    for (var i = 0, marker; i < points.data.length; i++) {#}
+{#        //添加marker标记#}
+{#        marker = new AMap.Marker({#}
+{#            position: points.data[i].lngLat,#}
+{#            map: map,#}
+{#            icon: new AMap.Icon({#}
+{#                image: 'http://www.easyicon.net/api/resizeApi.php?id=1061216&size=128',#}
+{#                imageSize:new AMap.Size(16,16)#}
+{#            })#}
+{#        });#}
+{#        marker.mycontent = points.data[i].id;#}
+{#        marker.on('click', markerClick);#}
+{#    }#}
+
     //鼠标点击marker弹出自定义的信息窗体
     function markerClick(e) {
 {#        infoWindow.setContent(e.target.content);#}
@@ -468,9 +367,9 @@
 
         //关闭信息窗体
         function closeInfoWindow() {
-            StationMap.map.clearInfoWindow();
+            map.clearInfoWindow();
         }
-        infoWindow.open(StationMap.map, e.target.getPosition());
+        infoWindow.open(map, e.target.getPosition());
     }
 
     //点击刷新选择地图属性是否显示
@@ -483,7 +382,7 @@
             }
         }
 {#        console.info(features);#}
-        StationMap.map.setFeatures(features);
+        map.setFeatures(features);
     }
 </script>
 </body>

@@ -61,20 +61,29 @@
             margin-right: 6px;
         }
     </style>
+    <link rel="stylesheet" href={% static "sweetalert/dist/sweetalert.css"%}>
     <script type="text/javascript" src="{% static "js/jquery-1.11.2.js" %}"></script>
     <script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=f9f0aedecf4a69390a96a3d62f80e988"></script>
     <script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>
-    <script type="text/javascript" src="{% static "js/stationJS/StationMap_yuAn.js" %}"></script>
     <script type="text/javascript" src="{% static "js/stationJS/MapUtils.js" %}"></script>
+    <script src={% static "sweetalert/dist/sweetalert.min.js"%}></script>
 </head>
 <body>
+{#<div class="map-title" style="#}
+{#    position: absolute;#}
+{#    text-align: center;#}
+{#    top: 20px;#}
+{#    width: 100%;#}
+{#    z-index: 1000;">#}
+{#    <h2 class="sub-header" style="color: #eff3f3;">基准站及服务区域</h2>#}
+{#</div>#}
 <div id="container"></div>
 
-<div  class='button-group' style="background-color: #0d9bf2;font-size: 10px;">
+<div  class='button-group' style="background: rgba(0, 0, 0, 0.5) none repeat scroll 0 0;font-size: 10px; color: white">
     <input type='checkbox' onclick='refresh()' checked name='bg'>背景
     <input type='checkbox' onclick='refresh()' checked name='road'>道路
     <input type='checkbox' onclick='refresh()' checked name='building'>建筑物
-    <input type='checkbox' onclick='refresh()' checked name='point'>标注(省)
+    <input type='checkbox' onclick='refresh()' checked name='point'>标注(省名)
 </div>
 {#<div class='button-group' style="background-color: #0d9bf2">#}
 {#    <input type='radio' onclick='refresh(this.value)' checked name='mapStyle' value='normal'>normal#}
@@ -82,14 +91,15 @@
 {#    <input type='radio' onclick='refresh(this.value)' name='mapStyle' value='light'>light#}
 {#    <input type='radio' onclick='refresh(this.value)' name='mapStyle' value='fresh'>fresh#}
 {#</div>#}
-<div id="tip" style="background-color: #0d9bf2; border:0;font-size: 10px;">
+<div id="tip" style="background: rgba(0, 0, 0, 0.5) none repeat scroll 0 0; border:0;font-size: 10px; color: white; z-index: 1500;">
+
     <span>图例</span>
-    <div><img src="{% static "img/map/Point_Green.png" %}" height="10" width="10"> 加密站(生产)_online: {{ num1 }}</div>
-    <div><img src="{% static "img/map/Point_Red.png" %}" height="10" width="10"> 加密站(生产)_offline:{{ num2 }}</div>
-    <div><img src="{% static "img/map/S_point_Green01.png" %}" height="10" width="10"> 加密站(建设)_online: {{ num3 }}</div>
-    <div><img src="{% static "img/map/S_Point_Red01.png" %}" height="10" width="10"> 加密站(建设)_offline: {{ num4 }}</div>
-    <div><img src="{% static "img/map/Control_Point_Green.png" %}" height="10" width="10"> 框架站_online: {{ num5 }}</div>
-    <div><img src="{% static "img/map/Control_Point_RED.png" %}" height="10" width="10"> 框架站_offline: {{ num6 }}</div>
+    <div><img src="{% static "img/map/Point_Green.png" %}" height="10" width="10"> 加密站(生产)_online: {{ num1 }}<input class="on" type='checkbox' onclick='refreshPoint()' checked name='no11'></div>
+    <div><img src="{% static "img/map/Point_Red.png" %}" height="10" width="10"> 加密站(生产)_offline:{{ num2 }}<input class="on" type='checkbox' onclick='refreshPoint()' checked name='no10'></div>
+    <div><img src="{% static "img/map/S_point_Green01.png" %}" height="10" width="10"> 加密站(建设)_online: {{ num3 }}<input class="on" type='checkbox' onclick='refreshPoint()' checked name='no21'></div>
+    <div><img src="{% static "img/map/S_Point_Red01.png" %}" height="10" width="10"> 加密站(建设)_offline: {{ num4 }}<input class="on" type='checkbox' onclick='refreshPoint()' checked name='no20'></div>
+    <div><img src="{% static "img/map/Control_Point_Green.png" %}" height="10" width="10"> 框架站_online: {{ num5 }}<input class="on" type='checkbox' onclick='refreshPoint()' checked name='no31'></div>
+    <div><img src="{% static "img/map/Control_Point_RED.png" %}" height="10" width="10"> 框架站_offline: {{ num6 }}<input class="on" type='checkbox' onclick='refreshPoint()' checked name='no30'></div>
     <div>Total Station: {{ num }}</div>
 </div>
 <script type="text/javascript">
@@ -145,9 +155,9 @@
             //url:"{% static 'json/stationResult.json' %}",
             data: {},
             success: function (data) {
-                console.log(data.data.grid);
+{#                console.log(data.data.grid);#}
                 var lngLats=MapUtils.coord2DStrToLngLats(data.data.grid.join(","));
-                console.log(lngLats);
+{#                console.log(lngLats);#}
                 thisRef.addGrids(lngLats);
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -267,6 +277,7 @@
     };
 
     StationMap.init();
+    var map = StationMap.map;
 	//地图初始化时，在地图上添加一个marker标记,鼠标点击marker可弹出自定义的信息窗体
 {#    var map = new AMap.Map("container", {#}
 {#        resizeEnable: true,#}
@@ -348,7 +359,7 @@
                         try {
                             marker = new AMap.Marker({
                                 position: [all[p].fields.latitude, all[p].fields.longitude],
-                                map: StationMap.map,
+                                map: map,
                                 icon: new AMap.Icon({
                                     image: image_path,
                                     {#                image: 'http://www.easyicon.net/api/resizeApi.php?id=1061216&size=128',#}
@@ -468,9 +479,9 @@
 
         //关闭信息窗体
         function closeInfoWindow() {
-            StationMap.map.clearInfoWindow();
+            map.clearInfoWindow();
         }
-        infoWindow.open(StationMap.map, e.target.getPosition());
+        infoWindow.open(map, e.target.getPosition());
     }
 
     //点击刷新选择地图属性是否显示
@@ -483,7 +494,96 @@
             }
         }
 {#        console.info(features);#}
-        StationMap.map.setFeatures(features);
+        map.setFeatures(features);
+    }
+    //点击刷新选择地图上的点是否显示
+    function refreshPoint() {
+        var boxes = document.getElementsByClassName('on');
+        var features = [];
+        for (var i = 0; i < boxes.length; i += 1) {
+            if (boxes[i].checked === true) {
+                features.push(boxes[i].name);
+            }
+        }
+        console.info(features);
+        $.ajax({
+            url:'{% url "amap:get_xxx_points" %}',
+            type: 'post',
+            data: {
+                category_no: features.toString()
+            },
+            dataType: 'json',
+            success: function(data){
+                map.clearMap();
+                var all = $.parseJSON(data);
+                // 格式化成高德javascriptapi接受的参数
+                function addMarker(){
+                    for (var p = 0; p < all.length; p++){
+                        //添加marker标记
+                        var image_path ='';
+                        // all[p].fields={};
+                        if(all[p].fields.category_id==1 && all[p].fields.state==1){
+                            image_path = '{% static "img/map/new0215/yuan_flash3.gif" %}';
+                        }
+                        else if(all[p].fields.category_id==1 && all[p].fields.state==0){
+                            image_path = '{% static "img/map/Point_Red.png" %}';
+                        }
+                        else if(all[p].fields.category_id==2 && all[p].fields.state==1){
+                            {#            image_path = '{% static "img/map/S_point_Green01.png" %}';#}
+                            image_path = '{% static "img/map/new0215/kongyuan_flash.gif" %}';
+                        }
+                        else if(all[p].fields.category_id==2 && all[p].fields.state==0){
+                            image_path = '{% static "img/map/S_Point_Red01.png" %}';
+                        }
+                        else if(all[p].fields.category_id==3 && all[p].fields.state==1){
+                            {#            image_path = '{% static "img/map/Control_Point_Green.png" %}';#}
+                            image_path = '{% static "img/map/new0215/sanjiao_flash.gif" %}';
+                        }
+                        else if(all[p].fields.category_id==3 && all[p].fields.state==0){
+                            image_path = '{% static "img/map/Control_Point_RED.png" %}';
+                        }
+                        try {
+                            marker = new AMap.Marker({
+                                position: [all[p].fields.latitude, all[p].fields.longitude],
+                                map: map,
+                                icon: new AMap.Icon({
+                                    image: image_path,
+                                    {#                image: 'http://www.easyicon.net/api/resizeApi.php?id=1061216&size=128',#}
+                                    imageSize: new AMap.Size(7, 7)
+                                })
+                            });
+                        }
+                        catch(e){
+                            alert("此页面有一个错误:\n"+e)
+                        }
+                        {#            console.log([all[p].fields.latitude, all[p].fields.longitude]);#}
+                        marker.state = all[p].fields.state;
+                        marker.category_id = all[p].fields.category_id;
+                        marker.rec_sn = all[p].fields.rec_sn;
+                        marker.station_cnname = all[p].fields.station_cnname;
+                        marker.station_ip = all[p].fields.station_ip;
+                        marker.sat_num = all[p].fields.sat_num;
+                        marker.ant_angle = all[p].fields.ant_angle;
+                        marker.real_time = all[p].fields.real_time;
+                        marker.station_code = all[p].fields.station_code;
+                        marker.rec_type = all[p].fields.rec_type;
+                        marker.device_type = all[p].fields.device_type;
+                        marker.station_pm = all[p].fields.station_pm;
+                        marker.station_agent_owner = all[p].fields.station_agent_owner;
+                        marker.station_agent_contact = all[p].fields.station_agent_contact;
+                        //marker.station_industry = all[p].fields.station_industry;
+                        marker.on('click', markerClick);
+                    }
+                }
+                addMarker();
+{#                swal({#}
+{#                    title: "Success!",#}
+{#                    text: "切换完成",#}
+{#                    timer: 800#}
+{#                });#}
+            }
+        });
+{#        map.setFeatures(features);#}
     }
 </script>
 </body>

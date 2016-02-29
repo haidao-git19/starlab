@@ -71,3 +71,37 @@ def get_all_points(request):
         ),
     )
     return JsonResponse(data, status=200, safe=False)
+
+@csrf_exempt
+def get_xxx_points(request):
+    category_no = request.POST.get('category_no')
+    list = str(category_no).split(',')
+    tl = []
+    for i in list:
+        tl.append((i[2:3], i[3:4]))
+    querysets = Receiver.objects.using('stationdb').filter(enabled=1)
+    querysets_result = Receiver.objects.none()
+    for (i, j) in tl:
+        querysets_result = querysets.filter(category_id=i, state=j) | querysets_result
+        print querysets_result.count()
+    data = serializers.serialize('json', querysets_result, fields=(
+        'state',
+        'latitude',
+        'longitude',
+        'category_id',
+        'rec_sn',
+        'station_cnname',
+        'station_ip',
+        'sat_num',
+        'ant_angle',
+        'real_time',
+        'station_code',
+        'rec_type',
+        'device_type',
+        'station_pm',
+        'station_agent_owner',
+        'station_agent_contact',
+        'station_industry',
+        ),
+    )
+    return JsonResponse(data, status=200, safe=False)

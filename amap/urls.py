@@ -11,4 +11,5 @@ urlpatterns = [
 # ajax
 urlpatterns += [
     url('^get_all_points/$', get_all_points, name="get_all_points"),
+    url('^get_xxx_points/$', get_xxx_points, name="get_xxx_points"),
 ]

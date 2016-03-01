@@ -80,10 +80,11 @@
 <div id="container"></div>
 
 <div  class='button-group' style="background: rgba(0, 0, 0, 0.5) none repeat scroll 0 0;font-size: 10px; color: white">
-    <input type='checkbox' onclick='refresh()' checked name='bg'>背景
-    <input type='checkbox' onclick='refresh()' checked name='road'>道路
-    <input type='checkbox' onclick='refresh()' checked name='building'>建筑物
-    <input type='checkbox' onclick='refresh()' checked name='point'>标注(省名)
+    <input type='checkbox' class="bg" onclick='refresh()' checked name='bg'>背景
+    <input type='checkbox' class="bg" onclick='refresh()' checked name='road'>道路
+    <input type='checkbox' class="bg" onclick='refresh()' checked name='building'>建筑物
+    <input type='checkbox' class="bg" onclick='refresh()' checked name='point'>标注(省名)
+    <input type='checkbox' class="bg" onclick='refresh()' checked name='autoRefresh'>自动刷新(5分钟)
 </div>
 {#<div class='button-group' style="background-color: #0d9bf2">#}
 {#    <input type='radio' onclick='refresh(this.value)' checked name='mapStyle' value='normal'>normal#}
@@ -100,6 +101,8 @@
     <div><img src="{% static "img/map/S_Point_Red01.png" %}" height="10" width="10"> 加密站(建设)_offline: {{ num4 }}<input class="on" type='checkbox' onclick='refreshPoint()' checked name='no20'></div>
     <div><img src="{% static "img/map/Control_Point_Green.png" %}" height="10" width="10"> 框架站_online: {{ num5 }}<input class="on" type='checkbox' onclick='refreshPoint()' checked name='no31'></div>
     <div><img src="{% static "img/map/Control_Point_RED.png" %}" height="10" width="10"> 框架站_offline: {{ num6 }}<input class="on" type='checkbox' onclick='refreshPoint()' checked name='no30'></div>
+    覆盖网格<input type='checkbox' class="switchGrid" onclick='switchGrid()' checked name='polygons'>
+{#    <div><img src="{% static "img/map/Control_Point_RED.png" %}" height="10" width="10"> 自动刷新开关<input class="autoRefresh" type='checkbox' onclick='switchRefresh()' checked name='switchRefresh'></div>#}
     <div>Total Station: {{ num }}</div>
 </div>
 <script type="text/javascript">
@@ -124,7 +127,7 @@
         map.on("complete", completeEventHandler);
 
         this.map=map;
-
+        this.intervalid = window.setInterval("map.clearMap();StationMap.getData();load_point()", 60000);
         var thisRef=this;
         function completeEventHandler() {
             //map.setMapStyle("blue_night");
@@ -209,15 +212,19 @@
     };
     StationMap.addGrids=function(points){
         var point={};
+        var polygon = {};
+        var polygons = [];
         for(var i= 0,iCount=points.length;i<iCount;i++){
             point=points[i];
-            this.drawRect(point);
+            polygon = this.drawRect(point);
+            polygons.push(polygon);
         }
+        this.polygons = polygons
     };
     //绘制面
     StationMap.drawArea=function(lngLats){
         var map =this.map;
-        var  polygon = new AMap.Polygon({
+        var polygon = new AMap.Polygon({
             path: lngLats,//设置多边形边界路径
             strokeColor: "#2C64B0", //线颜色
             strokeOpacity: 0.7, //线透明度
@@ -226,6 +233,7 @@
             fillOpacity: 0.7//填充透明度
         });
         polygon.setMap(map);
+        return polygon;
     };
     StationMap.drawRect=function(point){
         var lngLats=[];
@@ -235,7 +243,8 @@
         lngLats.push(new AMap.LngLat(lng+0.1,lat+0.1));
         lngLats.push(new AMap.LngLat(lng+0.1,lat-0.1));
         lngLats.push(new AMap.LngLat(lng-0.1,lat-0.1));
-        this.drawArea(lngLats);
+        var rect = this.drawArea(lngLats);
+        return rect;
     };
 
     //绘制网格线
@@ -484,37 +493,63 @@
         infoWindow.open(map, e.target.getPosition());
     }
 
-    //点击刷新选择地图属性是否显示
-    function refresh() {
-        var boxes = document.getElementsByTagName('input');
+    //点击刷新网格是否显示
+    function switchGrid() {
+        var boxes = document.getElementsByClassName('switchGrid');
         var features = [];
         for (var i = 0; i < boxes.length; i += 1) {
             if (boxes[i].checked === true) {
                 features.push(boxes[i].name);
             }
         }
-{#        console.info(features);#}
+        if (features.indexOf('polygons') === -1) {
+            StationMap.map.remove(StationMap.polygons);
+        }
+        else  {
+            StationMap.getData();
+        }
+        console.log(features)
+    }
+    //点击刷新选择地图属性是否显示
+    function refresh() {
+        var boxes = document.getElementsByClassName('bg');
+        var features = [];
+        for (var i = 0; i < boxes.length; i += 1) {
+            if (boxes[i].checked === true) {
+                features.push(boxes[i].name);
+            }
+        }
+        console.log(features);
+        // 自动刷新开关
+        if (features.indexOf("autoRefresh") === -1) {
+            window.clearInterval(StationMap.intervalid);
+        }
+        else {
+            window.clearInterval(StationMap.intervalid);
+            StationMap.intervalid = window.setInterval("map.clearMap();StationMap.getData();load_point()", 60000);
+        }
         map.setFeatures(features);
     }
     //点击刷新选择地图上的点是否显示
     function refreshPoint() {
         var boxes = document.getElementsByClassName('on');
-        var features = [];
+        var station_types = [];
         for (var i = 0; i < boxes.length; i += 1) {
             if (boxes[i].checked === true) {
-                features.push(boxes[i].name);
+                station_types.push(boxes[i].name);
             }
         }
-        console.info(features);
+        console.info(station_types);
         $.ajax({
             url:'{% url "amap:get_xxx_points" %}',
             type: 'post',
             data: {
-                category_no: features.toString()
+                category_no: station_types.toString()
             },
             dataType: 'json',
             success: function(data){
                 map.clearMap();
+                map.remove(marker);
                 var all = $.parseJSON(data);
                 // 格式化成高德javascriptapi接受的参数
                 function addMarker(){

@@ -156,6 +156,45 @@
 			<div style="color:#337ab7">{{ form.uat_date.help_text }}</div>
         </div>
     </div>
+
+	<!-- dev_person -->
+	<div class="uk-form-row">
+		<label for="id_dev_person" class="uk-form-label">{{ form.dev_person.label }}
+			{% for error in form.dev_person.errors %}
+              		<span class="uk-badge uk-badge-danger">{{ error }}</span>
+            {% endfor %}
+        </label>
+		<div class="uk-form-controls">
+			{{ form.dev_person }}
+			<div style="color:#337ab7">{{ form.dev_person.help_text }}</div>
+        </div>
+    </div>
+
+	<!-- test_person -->
+	<div class="uk-form-row">
+		<label for="id_test_person" class="uk-form-label">{{ form.test_person.label }}
+			{% for error in form.test_person.errors %}
+              		<span class="uk-badge uk-badge-danger">{{ error }}</span>
+            {% endfor %}
+        </label>
+		<div class="uk-form-controls">
+			{{ form.test_person }}
+			<div style="color:#337ab7">{{ form.test_person.help_text }}</div>
+        </div>
+    </div>
+
+	<!-- service_department -->
+	<div class="uk-form-row">
+		<label for="id_service_department" class="uk-form-label">{{ form.service_department.label }}
+			{% for error in form.service_department.errors %}
+              		<span class="uk-badge uk-badge-danger">{{ error }}</span>
+            {% endfor %}
+        </label>
+		<div class="uk-form-controls">
+			{{ form.service_department }}
+			<div style="color:#337ab7">{{ form.service_department.help_text }}</div>
+        </div>
+    </div>
   </div><!-- end 1-2 -->
 </div><!-- end uk-grid -->
 	<!-- button -->

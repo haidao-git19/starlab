@@ -37,18 +37,20 @@ import datetime
 class Item(models.Model):
     itemName = models.CharField(max_length=255)
     routID = models.ForeignKey("workflow.Rout", verbose_name="使用流程")
-    applyUserId = models.ForeignKey("auth.User", verbose_name="申请人")
+    applyUserId = models.ForeignKey("auth.User", verbose_name="申请人", related_name="applyUser")
     state = models.IntegerField(choices=STATE_CHOICES, default=0, verbose_name="版本类型")
     itemType = models.IntegerField(choices=TYPE_CHOICES, default=0)
-    reason = models.CharField(null=True, blank=True, max_length=50, verbose_name="原因")
-    content = models.CharField(null=True, blank=True, max_length=50, verbose_name="内容")
+    reason = models.TextField(null=True, blank=True, max_length=5000, verbose_name="原因")
+    content = models.TextField(null=True, blank=True, max_length=5000, verbose_name="内容")
     start_time = models.DateTimeField(null=True, blank=True, verbose_name="开始时间")
     end_time = models.DateTimeField(null=True, blank=True, verbose_name="结束时间")
     incidence = models.TextField(null=True, blank=True, max_length=5000, verbose_name="影响范围")
     operation = models.TextField(null=True, blank=True, max_length=5000, verbose_name="具体操作")
     rollback = models.TextField(null=True, blank=True, max_length=5000, verbose_name="回滚")
     comment = models.TextField(null=True, blank=True, max_length=5000, verbose_name="注释")
-
+    dev_person = models.ForeignKey("auth.User", null=True, blank=True, verbose_name="开发人员", related_name="dev_person")
+    test_person = models.ForeignKey("auth.User", null=True, blank=True, verbose_name="测试人员", related_name="test_person")
+    service_department = models.TextField(null=True, blank=True, max_length=250, verbose_name="服务所属部门")
 
     def __unicode__(self):
         return u"{}({})".format(self.itemName, self.get_state_display())

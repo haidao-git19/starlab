@@ -89,7 +89,7 @@ class ItemCreateForm(forms.ModelForm):
         error_messages = {'required': "必填项"},
         widget = forms.Textarea(
             attrs = {
-                'placeholder': "最大可以输入50字",
+                'placeholder': "最大可以输入5000字",
                 'class': 'uk-width-1-1',
                 'rows': 2,
             }
@@ -101,9 +101,9 @@ class ItemCreateForm(forms.ModelForm):
         label = "* 变更内容",
         # help_text = "可为空，为了防止混淆，一个文档只能属于一个项目",
         error_messages = {'required': "必填项"},
-        widget = forms.TextInput(
+        widget = forms.Textarea(
             attrs = {
-                'placeholder': "最大可以输入50字",
+                'placeholder': "最大可以输入5000字",
                 'class': 'uk-width-1-1',
                 'rows': 4,
             }
@@ -191,7 +191,43 @@ class ItemCreateForm(forms.ModelForm):
             }
         ),
     )
+    dev_person =  forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        required = True,
+        label = "* 开发人员",
+        error_messages = {'required': "必填项"},
+        widget = forms.Select(
+            attrs = {
+                'class': 'uk-width-1-1',
+            }
+        ),
+    )
 
+    test_person = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        required = True,
+        label = "* 测试人员",
+        error_messages = {'required': "必填项"},
+        widget = forms.Select(
+            attrs = {
+                'class': 'uk-width-1-1',
+            }
+        ),
+    )
+
+    service_department = forms.CharField(
+        required = False,
+        label = "* 服务所属部门",
+        help_text = "可为空",
+        error_messages = {'required': "必填项"},
+        widget = forms.TextInput(
+            attrs = {
+                'placeholder': "最大可以输入250字",
+                'class': 'uk-width-1-1',
+                'rows': 2,
+            }
+        ),
+    )
 
     class Meta:
         model = Item

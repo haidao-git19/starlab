@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
     url(r'^$', AmapIndexView.as_view(), name='index'),
+    url(r'^details', station_detail, name='details'),
 ]
 
 # ajax

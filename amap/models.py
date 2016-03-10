@@ -57,3 +57,11 @@ class Receiver(models.Model):
     class Meta:
         managed = False
         db_table = 'receiver'
+
+    def get_absolute_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('amap:details', args=[str(self.id)])
+
+
+# class Receiver_extend(models.Model):
+#     receiver = models.OneToOneField(Receiver)

@@ -8,6 +8,8 @@
     <link type="image/x-icon" rel="icon" href="{% static "img/star.ico" %}">
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
     <title>站点监测</title>
+    <link rel="stylesheet" href="{% static "uikit-2.24.1/css/uikit.almost-flat.min.css" %}"/>
+    <link rel="stylesheet" href="{% static "uikit-2.24.1/css/components/tooltip.css" %}"/>
     <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
     <style type="text/css">
         .info {
@@ -63,6 +65,8 @@
     </style>
     <link rel="stylesheet" href={% static "sweetalert/dist/sweetalert.css"%}>
     <script type="text/javascript" src="{% static "js/jquery-1.11.2.js" %}"></script>
+    <script type="text/javascript" src="{% static "uikit-2.24.1/js/uikit.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "uikit-2.24.1/js/components/tooltip.min.js" %}"></script>
     <script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=f9f0aedecf4a69390a96a3d62f80e988"></script>
     <script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>
     <script type="text/javascript" src="{% static "js/stationJS/MapUtils.js" %}"></script>
@@ -387,6 +391,7 @@
                             alert("此页面有一个错误:\n"+e)
                         }
                         {#            console.log([all[p].fields.latitude, all[p].fields.longitude]);#}
+                        marker.id = all[p].pk;
                         marker.state = all[p].fields.state;
                         marker.category_id = all[p].fields.category_id;
                         marker.rec_sn = all[p].fields.rec_sn;
@@ -436,16 +441,24 @@
         content.push("卫星数: " + e.target.sat_num);
         content.push("高度角: " + e.target.ant_angle);
         content.push("数据时间: " + e.target.real_time);
-        content.push("项目PM: " + e.target.station_pm);
-        content.push("代维人员: " + e.target.station_agent_owner);
-        content.push("代维电话: " + e.target.station_agent_contact);
-        //content.push("行业: " + e.target.station_industry);
+        var html_weihu = "项目PM: " + e.target.station_pm + "<br/>" + "代维人员: " + e.target.station_agent_owner + "<br>" + "代维电话: " + e.target.station_agent_contact;
+{#        content.push(html_daiwei);#}
+{#        content.push("项目PM: " + e.target.station_pm);#}
+{#        content.push("代维人员: " + e.target.station_agent_owner);#}
+{#        content.push("代维电话: " + e.target.station_agent_contact);#}
         if(e.target.state==0){
             content.push("状态: " + "<span style='color:red'>离线</span>");
         }
         else if(e.target.state==1){
             content.push("状态: " + "<span style='color:green'>在线</span>");
         }
+        content.push("<hr><span class='uk-badge uk-badge-success' data-uk-tooltip title='" + html_weihu + "'>维护信息</span>");
+        content.push("<span class='uk-badge uk-badge-success' data-uk-tooltip title='" + "站点接入时间：2016-1-1 12:00 <br>省份： 黑龙江<br>行业属性：测绘<br>验收状态：观察期" + "'>验收信息</span><br>----------------------");
+        content.push("<a class='' target='_blank' " + "href='" + "{% url 'amap:details'  %}" + "?pk=" + e.target.id + "'" + "'>图片展示</a><br>----------------------");
+        content.push("<span class='uk-badge uk-badge-primary' data-uk-tooltip title='" + "事件ID：131<br>事件主题： 广东兴宁(172.17.13.146)<br>事件内容：DAFDFFDADADADAD" + "'>验收跟踪</span>");
+        content.push("<span class='uk-badge uk-badge-danger' data-uk-tooltip title='" + "事件ID：781<br>事件主题： 自建站天津武清（192.168.0.157）失去响应，气象局迁址导致，机房网络还没有完成拉线，仍在跟进。<br>事件内容：20160104<br>11:55 bs-天津武清（192.168.0.157）icmpping探测失败报警。<br>12:06 已联系王一川处理。<br>12:25 王一川反馈：天津业主更换地址。<br>20160106<br>14:00 王一川反馈：业主正在处理。<br>20160112<br>10:59 王一川反馈：暂时还在抢修中。<br>20160118<br>10:59 陈东反馈：气象局设备整改，已经到位，正在等待网络恢复。<br>20160119<br>14:30 陈东反馈：等待网络恢复。<br>20160120<br>16:29 陈东反馈：目前还在处理中。<br>20160121<br>杨峻松反馈：气象局迁址，预计年后才会完成，报警短期内不会恢复。<br>20160217<br>14:15 王一川反馈：预计还有几天才能处理。<br>20160223<br>19:10 王一川反馈：机房网络还没有完成拉线，联通给的预期是年后两周，仍在跟进。<br>20160226<br>13:30 杨峻松反馈：测绘还未处理，等待通知。" + "'>事件跟踪</span>");
+        content.push("<span class='uk-badge uk-badge-primary' data-uk-tooltip title='" + "空" + "'>变更跟踪</span>");
+{#        content.push("<a href=" + "{% url 'amap:details' %}" + "?pk=" + e.target.id + ">更多详情" + "</a>");#}
         var infoWindow = new AMap.InfoWindow({
             isCustom: true,  //使用自定义窗体
             content: createInfoWindow(title, content.join("<br/>")),
@@ -601,6 +614,7 @@
                             alert("此页面有一个错误:\n"+e)
                         }
                         {#            console.log([all[p].fields.latitude, all[p].fields.longitude]);#}
+                        marker.id = all[p].pk;
                         marker.state = all[p].fields.state;
                         marker.category_id = all[p].fields.category_id;
                         marker.rec_sn = all[p].fields.rec_sn;

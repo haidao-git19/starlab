@@ -1,3 +1,4 @@
+# coding:utf8
 from django.shortcuts import render
 from django.views.generic import ListView
 from home.models import Website
@@ -5,6 +6,7 @@ from .models import Receiver
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.shortcuts import render_to_response, HttpResponse
 # Create your views here.
 
 
@@ -16,6 +18,7 @@ class AmapIndexView(ListView):
         context = super(AmapIndexView, self).get_context_data(**kwargs)
         querysets = Receiver.objects.using('stationdb').filter(enabled=1)
         data = serializers.serialize('json', querysets, fields=(
+            'id',
             'state',
             'latitude',
             'longitude',
@@ -51,6 +54,7 @@ class AmapIndexView(ListView):
 def get_all_points(request):
     querysets = Receiver.objects.using('stationdb').filter(enabled=1)
     data = serializers.serialize('json', querysets, fields=(
+        'id',
         'state',
         'latitude',
         'longitude',
@@ -85,6 +89,7 @@ def get_xxx_points(request):
         querysets_result = querysets.filter(category_id=i, state=j) | querysets_result
         print querysets_result.count()
     data = serializers.serialize('json', querysets_result, fields=(
+        'id',
         'state',
         'latitude',
         'longitude',
@@ -105,3 +110,9 @@ def get_xxx_points(request):
         ),
     )
     return JsonResponse(data, status=200, safe=False)
+
+
+def station_detail(request):
+    station_id = request.GET.get('pk', '')
+    # return render_to_response(station_id)
+    return HttpResponse("基站ID:{}<br>图片:http://127.0.0.1:8000/static/img/{}".format(station_id, station_id))

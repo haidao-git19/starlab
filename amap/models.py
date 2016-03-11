@@ -7,6 +7,15 @@ CATEGORY_CHOICES = (
     (2, '加密站(建设)'),
     (3, '框架站'),
 )
+
+INDUSTRY_CHOICES = (
+    (1, '地震'),
+    (2, '铁塔'),
+    (3, '气象'),
+    (4, '测绘'),
+    (5, '交通'),
+)
+
 class Receiver(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
     real_time = models.DateTimeField(db_column='REAL_TIME', blank=True, null=True)  # Field name made lowercase.
@@ -52,7 +61,7 @@ class Receiver(models.Model):
     station_pm = models.CharField(max_length=20, blank=True, null=True)
     station_agent_owner = models.CharField(max_length=20, blank=True, null=True)
     station_agent_contact = models.CharField(max_length=20, blank=True, null=True)
-    station_industry = models.CharField(max_length=20, blank=True, null=True)
+    station_industry = models.CharField(choices=INDUSTRY_CHOICES, max_length=20, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -61,6 +70,9 @@ class Receiver(models.Model):
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
         return reverse('amap:details', args=[str(self.id)])
+
+    def __unicode__(self):
+        return str(self.rec_sn)
 
 
 # class Receiver_extend(models.Model):

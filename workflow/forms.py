@@ -191,26 +191,28 @@ class ItemCreateForm(forms.ModelForm):
             }
         ),
     )
-    dev_person =  forms.ModelChoiceField(
-        queryset=User.objects.all(),
-        required = True,
+    dev_person =  forms.CharField(
+        # queryset=User.objects.all(),
+        required = False,
         label = "* 开发人员",
-        error_messages = {'required': "必填项"},
-        widget = forms.Select(
+        # error_messages = {'required': "必填项"},
+        widget = forms.TextInput(
             attrs = {
                 'class': 'uk-width-1-1',
+                'placeholder': "可以为空",
             }
         ),
     )
 
-    test_person = forms.ModelChoiceField(
-        queryset=User.objects.all(),
-        required = True,
+    test_person = forms.CharField(
+        # queryset=User.objects.all(),
+        required = False,
         label = "* 测试人员",
-        error_messages = {'required': "必填项"},
-        widget = forms.Select(
+        # error_messages = {'required': "必填项"},
+        widget = forms.TextInput(
             attrs = {
                 'class': 'uk-width-1-1',
+                'placeholder': "可以为空",
             }
         ),
     )
@@ -218,11 +220,11 @@ class ItemCreateForm(forms.ModelForm):
     service_department = forms.CharField(
         required = False,
         label = "* 服务所属部门",
-        help_text = "可为空",
+        # help_text = "可为空",
         error_messages = {'required': "必填项"},
         widget = forms.TextInput(
             attrs = {
-                'placeholder': "最大可以输入250字",
+                'placeholder': "可以为空",
                 'class': 'uk-width-1-1',
                 'rows': 2,
             }

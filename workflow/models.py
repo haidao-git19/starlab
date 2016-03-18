@@ -48,8 +48,10 @@ class Item(models.Model):
     operation = models.TextField(null=True, blank=True, max_length=5000, verbose_name="具体操作")
     rollback = models.TextField(null=True, blank=True, max_length=5000, verbose_name="回滚")
     comment = models.TextField(null=True, blank=True, max_length=5000, verbose_name="注释")
-    dev_person = models.ForeignKey("auth.User", null=True, blank=True, verbose_name="开发人员", related_name="dev_person")
-    test_person = models.ForeignKey("auth.User", null=True, blank=True, verbose_name="测试人员", related_name="test_person")
+    # dev_person = models.ForeignKey("auth.User", null=True, blank=True, verbose_name="开发人员", related_name="dev_person")
+    # test_person = models.ForeignKey("auth.User", null=True, blank=True, verbose_name="测试人员", related_name="test_person")
+    dev_person = models.CharField(null=True, blank=True, verbose_name="开发人员", max_length=255)
+    test_person = models.CharField(null=True, blank=True, verbose_name="测试人员", max_length=255)
     service_department = models.TextField(null=True, blank=True, max_length=250, verbose_name="服务所属部门")
 
     def __unicode__(self):

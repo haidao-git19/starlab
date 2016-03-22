@@ -1,0 +1,70 @@
+{% extends "track/index.html" %}
+{% load staticfiles %}
+
+{% block title %}
+    千寻 | UPDATE
+{% endblock %}
+
+{% block description %}
+    <div class="uk-block uk-contrast" style="background-color: #263d1d">
+        <div class="uk-container uk-container-center">
+
+            <h2 class="uk-text-bold">{{ object.name }}</h2>
+
+{#            <div class="uk-grid uk-grid-match">#}
+{#                <div class="uk-width-medium-1-2">#}
+{#                    <div class="uk-panel">#}
+{#                        <h5 class="uk-text-muted uk-text-bold">可选的事件类别</h5>#}
+{#                        {% for i in category_list %}#}
+{#                            <span class="uk-badge uk-badge-warning">{{ i.name }}[{{ i.owner.last_name }}{{ i.owner.first_name }}]</span>#}
+{#                        {% endfor %}#}
+{#                    </div>#}
+{#                </div>#}
+{#                <div class="uk-width-medium-1-2">#}
+{#                    <div class="uk-panel">#}
+{#                        <h5 class="uk-text-muted uk-text-bold">可选的事件等级</h5>#}
+{#                        {% for i in level_list %}#}
+{#                            <span class="uk-badge uk-badge-warning">{{ i.name }}</span>#}
+{#                        {% endfor %}#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block middle-nav %}
+{% endblock %}
+
+{% block content %}
+    <div class="uk-grid">
+        <div class="uk-width-medium-1-1">
+
+            <h4 class="tm-article-subtitle">详情:{{ object.name }} <div class="uk-text-warning uk-margin-top">{{ object.status }}</div></h4>
+            <dl class="uk-description-list-line">
+                <dt>使用流程:</dt><dd>{{ object.routID }}</dd>
+                <dt>申请人:</dt><dd>{{ object.applyUserId }}</dd>
+                <dt>类型:</dt><dd>{{ object.get_itemType_display }}</dd>
+                <dt>开始时间:</dt><dd>{{ object.start_time|date:"y-m-d H:i" }}</dd>
+                <dt>计划结束时间:</dt><dd>{{ object.end_time|date:"y-m-d H:i" }}</dd>
+                <dt>原因:</dt><dd>{{ object.reason }}</dd>
+                <dt>内容:</dt><dd>{{ object.content }}</dd>
+                <dt>影响范围:</dt><dd>{{ object.incidence|linebreaksbr }}</dd>
+                <dt>具体操作:</dt><dd>{{ object.operation|linebreaksbr }}</dd>
+                <dt>回滚:</dt><dd>{{ object.rollback|linebreaksbr }}</dd>
+                <dt>注释:</dt><dd>{{ object.comment|linebreaksbr}}</dd>
+                <dt>开发人员:</dt><dd>{{ object.dev_person|linebreaksbr}}</dd>
+                <dt>测试人员:</dt><dd>{{ object.test_person|linebreaksbr}}</dd>
+                <dt>服务所属部门:</dt><dd>{{ object.service_department|linebreaksbr}}</dd>
+            </dl>
+        </div>
+    </div>
+    <hr>
+    <a href="{% url "track:home" %}" class="uk-button uk-button-primary">返回首页</a>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+</script>
+{% endblock %}

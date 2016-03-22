@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'workflow',
     'workorder',
     'amap',
+    'track',
 )
 
 MIDDLEWARE_CLASSES = (

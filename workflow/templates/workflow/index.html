@@ -12,6 +12,7 @@
                     <ul class="uk-navbar-nav">
                         <li class="{% if "item" in current_page %}uk-active{% endif %}"><a href="{% url "workflow:item-list" %}">变更管理</a></li>
                         <li class="{% if "order" in current_page %}uk-active{% endif %}"><a href="{% url "workorder:category-list" %}">工单管理</a></li>
+                        <li class="{% if "track" in current_page %}uk-active{% endif %}"><a href="{% url "track:home" %}">事件跟踪</a></li>
                     </ul>
                     <div class="uk-navbar-flip">
                         <ul class="uk-navbar-nav">

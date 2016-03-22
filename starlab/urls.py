@@ -27,4 +27,5 @@ urlpatterns = [
     url(r'^workflow/', include("workflow.urls", namespace="workflow")),
     url(r'^workorder/', include("workorder.urls", namespace="workorder")),
     url(r'^amap/', include("amap.urls", namespace="amap")),
+    url(r'^track/', include("track.urls", namespace="track")),
 ]

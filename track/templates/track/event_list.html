@@ -1,0 +1,98 @@
+{% extends "workflow/index.html" %}
+{% load staticfiles %}
+
+{% block title %}
+    千寻 | 我提的单
+{% endblock %}
+
+{% block description %}
+    <div class="uk-block uk-contrast" style="background-color: #263d1d">
+        <div class="uk-container uk-container-center">
+
+            <h2 class="uk-text-bold">我提的单</h2>
+
+{#            <div class="uk-grid uk-grid-match">#}
+{#                <div class="uk-width-medium-1-2">#}
+{#                    <div class="uk-panel">#}
+{#                        <h5 class="uk-text-muted uk-text-bold">可选的事件类别</h5>#}
+{#                        {% for i in category_list %}#}
+{#                            <span class="uk-badge uk-badge-warning">{{ i.name }}[{{ i.owner.last_name }}{{ i.owner.first_name }}]</span>#}
+{#                        {% endfor %}#}
+{#                    </div>#}
+{#                </div>#}
+{#                <div class="uk-width-medium-1-2">#}
+{#                    <div class="uk-panel">#}
+{#                        <h5 class="uk-text-muted uk-text-bold">可选的事件等级</h5>#}
+{#                        {% for i in level_list %}#}
+{#                            <span class="uk-badge uk-badge-warning">{{ i.name }}</span>#}
+{#                        {% endfor %}#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block middle-nav %}
+{#<div class="uk-container uk-container-center uk-margin-top">#}
+{#    <ul class="uk-subnav uk-subnav-pill uk-float-right">#}
+{#        <li class="{% if current_page == "workorder-category-list" %}uk-active{% endif %}"><a href="{% url "workorder:category-list" %}">首页</a></li>#}
+{#        <li class="{% if current_page == "workorder-order-list-user" %}uk-active{% endif %}"><a href="{% url "workorder:order-list-user" %}">我的表单</a></li>#}
+{#        <li class="{% if current_page == "workorder-task-list" %}uk-active{% endif %}"><a href="{% url "workorder:list-task" %}">审批 | 分发</a></li>#}
+{#        <li class="{% if current_page == "workorder-task-list-engineer" %}uk-active{% endif %}"><a href="{% url "workorder:list-task-engineer" %}">我的工作</a></li>#}
+{#        <li class=""><a>表单统计</a></li>#}
+{#    </ul>#}
+{#</div>#}
+{#    <hr class="uk-margin-remove">#}
+{% endblock %}
+
+{% block content %}
+    <div class="uk-grid">
+        <div class="uk-width-medium-1-1">
+            <table id="table_1" class="display uk-margin-bottom">
+                <thead>
+                    <tr>
+                        <th>事件编号</th>
+                        <th>标题</th>
+                        <th>提出人</th>
+                        <th>当前责任人</th>
+                        <th>等级</th>
+                        <th>事件状态</th>
+                        <th>是否超时</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in object_list %}
+                        <tr>
+                            <td class="uk-text-center"><i><a href="{{ i.get_absolute_url }}">{{ i.id }}</a></i></td>
+                            <td class="uk-text-center"><i>{{ i.name }}</i></td>
+                            <td class="uk-text-center"><i>{{ i.offer_people.last_name }}{{ i.offer_people.first_name }}</i></td>
+                            <td class="uk-text-center"><span class="uk-badge uk-badge-primary">{{ i.category.owner.last_name }}{{ i.category.owner.first_name }}</span></td>
+                            <td class="uk-text-center">{{ i.level.name|default:'空' }}</td>
+                            <td class="uk-text-center">{{ i.status.name|default:'空' }}</td>
+                            <td class="uk-text-center">
+                                <a href="{% url "track:event-update" pk=i.id %}" class="uk-button uk-button-success uk-button-mini btn-start">编辑</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+    $('#table_1').DataTable(
+    {
+        "order": [[ 0, "desc" ]],
+        "paging":   true,
+        "info":     true,
+        "language": {
+            "url": "{% static "dataTables/json/Chinese.json" %}"
+        }
+    });
+</script>
+{% endblock %}

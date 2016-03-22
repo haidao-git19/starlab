@@ -28,9 +28,12 @@
             </form>
         </div>
     </div>
+{#    <p class="errorlist">asd</p>#}
 {% endblock %}
 
 {% block js %}
 <script type="text/javascript">
+    var error_list = $('.errorlist');
+    error_list.css({color:'red'})
 </script>
 {% endblock %}

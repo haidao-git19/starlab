@@ -9,7 +9,7 @@
     <div class="uk-block uk-contrast" style="background-color: #263d1d">
         <div class="uk-container uk-container-center">
 
-            <h2 class="uk-text-bold">我提的单</h2>
+            <h2 class="uk-text-bold">我的已办</h2>
 
 {#            <div class="uk-grid uk-grid-match">#}
 {#                <div class="uk-width-medium-1-2">#}
@@ -64,7 +64,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for i in object_list %}
+                    {% for i in event_over %}
                         <tr>
                             <td class="uk-text-center"><i><a href="{{ i.get_absolute_url }}">{{ i.id }}</a></i></td>
                             <td class="uk-text-center"><i>{{ i.name }}</i></td>

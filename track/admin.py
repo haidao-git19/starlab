@@ -6,4 +6,4 @@ from .models import *
 admin.site.register(Event)
 admin.site.register(EventCategory)
 admin.site.register(Level)
-admin.site.register(EventStatus)
+# admin.site.register(EventStatus)

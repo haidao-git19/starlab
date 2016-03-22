@@ -58,7 +58,7 @@ class EventForm(forms.ModelForm):
     )
 
     desc = forms.CharField(
-        required = False,
+        required = True,
         label = "备注",
         error_messages = {'required': "必填项"},
         widget = forms.Textarea(

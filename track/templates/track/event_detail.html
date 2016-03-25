@@ -54,10 +54,10 @@
                 <dt>事件编号:</dt><dd>{{ object.id }}</dd>
                 <dt>标题:</dt><dd>{{ object.name }}</dd>
                 <dt>提出人:</dt><dd>{{ object.offer_people }}</dd>
-                <dt>当前责任人:</dt><dd>{{ object.category.owner }}</dd>
+                <dt>当前责任人:</dt><dd>{{ object.current_people }}</dd>
                 <dt>等级:</dt><dd>{{ object.level }}</dd>
                 <dt>创建于:</dt><dd>{{ object.create_time | timesince }}前</dd>
-                <dt>描述:</dt><dd>{{ object.desc }}</dd>
+                <dt>track log:</dt><dd>{{ object.desc| linebreaksbr }}</dd>
             </dl>
         </div>
     </div>

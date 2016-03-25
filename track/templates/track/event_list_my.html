@@ -1,4 +1,4 @@
-{% extends "workflow/index.html" %}
+{% extends "track/index.html" %}
 {% load staticfiles %}
 
 {% block title %}
@@ -69,13 +69,13 @@
                             <td class="uk-text-center"><i><a href="{{ i.get_absolute_url }}">{{ i.id }}</a></i></td>
                             <td class="uk-text-center"><i>{{ i.name }}</i></td>
                             <td class="uk-text-center"><i>{{ i.offer_people.last_name }}{{ i.offer_people.first_name }}</i></td>
-                            <td class="uk-text-center">{{ i.category.owner.last_name }}{{ i.category.owner.first_name }}</td>
+                            <td class="uk-text-center">{{ i.current_people.last_name }}{{ i.current_people.first_name }}</td>
                             <td class="uk-text-center">{{ i.level.name|default:'空' }}</td>
                             <td class="uk-text-center"><span class="uk-badge uk-badge-primary">{{ i.status.name|default:'空' }}</span></td>
                             <td class="uk-text-center">{{ i.create_time|timesince }}前</td>
                             <td class="uk-text-center">
-                                <a href="{% url "track:event-update" pk=i.id %}" class="uk-button uk-button-primary uk-button-mini">编辑</a>
-                                <button href="" class="uk-button uk-button-success uk-button-mini btn-over" pk="{{ i.id }}">完成</button>
+                                <a href="{% url "track:event-update" pk=i.id %}" class="uk-button uk-button-primary uk-button-mini">备注处理结果/移交</a>
+                                <button href="" class="uk-button uk-button-success uk-button-mini btn-over" pk="{{ i.id }}">直接结束</button>
                             </td>
                         </tr>
                     {% empty %}

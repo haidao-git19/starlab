@@ -25,6 +25,7 @@
                 {{ form.as_p }}
                 <hr>
 			    <button type="submit" class="uk-button uk-button-primary">提交表单</button>
+                <a href="{% url "track:event_list_my" %}" class="uk-button uk-button-success">返回我的待办</a>
             </form>
         </div>
     </div>
@@ -34,5 +35,29 @@
 <script type="text/javascript">
     var error_list = $('.errorlist');
     error_list.css({color:'blue'});
+
+    function getSiteIdOptions(category_id){
+        $.ajax({
+            type: "GET",
+            url: "{% url "track:get-owner" %}?category_id="+category_id,
+            dataType:'json',
+            success: function(data){
+                var siteSelect = document.getElementById("id_current_people");
+                for ( var i=siteSelect.options.length-1; i>=-1; i--){
+                    siteSelect[i] = null;
+                }
+                if(data.length > 0) {
+                    $("#placeholder").remove();
+                    $("#id_current_people").show();
+                    for(i=0;i<data.length;i++){
+                        siteSelect.options[i] = new Option();
+                        siteSelect.options[i].text = data[i].label;
+                        siteSelect.options[i].value = data[i].text;
+                    }
+                }
+                console.log(data);
+            }
+        })
+    }
 </script>
 {% endblock %}

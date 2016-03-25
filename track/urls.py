@@ -11,11 +11,14 @@ urlpatterns = [
     url(r'^event_list_my$', login_required(EventMyView.as_view()), name='event_list_my'),
     url(r'^event_detail/(?P<pk>[0-9]+)/$', login_required(EventDetailView.as_view()), name='event-detail'),
     url(r'^event_create$', login_required(EventCreateView.as_view()), name='event-create'),
-    url(r'^event_update/(?P<pk>[0-9]+)/$', login_required(EventUpdateView.as_view()), name='event-update'),
+    url(r'^event_update_all/(?P<pk>[0-9]+)/$', login_required(EventUpdateAllView.as_view()), name='event-update-all'),
+    # url(r'^event_update/(?P<pk>[0-9]+)/$', login_required(EventUpdateView.as_view()), name='event-update'),
+    url(r'^event_update/(?P<pk>[0-9]+)/$', login_required(event_update), name='event-update'),
 ]
 
 # ajax
 
 urlpatterns += [
     url(r'^event_end', event_end, name='event-end'),
+    url(r'^get_owner', getPeopleFromCategory, name='get-owner'),
 ]
